@@ -10,7 +10,7 @@ import { useLocation } from 'wouter';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { format, differenceInDays } from 'date-fns';
-import { Calendar as CalendarIcon, ChevronDown, MapPin, Wind, Snowflake, Thermometer } from 'lucide-react';
+import { Calendar as CalendarIcon, MapPin, Snowflake, Thermometer } from 'lucide-react';
 import Navigation from '@/components/Navigation';
 import CustomCursor from '@/components/CustomCursor';
 import { apartments } from '@/lib/apartments';
@@ -33,6 +33,7 @@ gsap.registerPlugin(ScrollTrigger);
 const HERO_IMAGE = 'https://d2xsxph8kpxj0f.cloudfront.net/310519663457771596/CDGBXHppTB3VFJSZAKqvbh/hero-pamporovo-hKcPiG4L4E98MCUqhhYFF2.webp';
 const MUX_VIDEO_ID = 'rR8P8mSaKDzz02TsftugTUdI00cQPJX00oy';
 const HERO_VIDEO_MP4 = `https://stream.mux.com/${MUX_VIDEO_ID}.mp4`;
+const HERO_VIDEO_HLS = `https://stream.mux.com/${MUX_VIDEO_ID}.m3u8`;
 const FIREPLACE_IMAGE = 'https://d2xsxph8kpxj0f.cloudfront.net/310519663457771596/CDGBXHppTB3VFJSZAKqvbh/interior-fireplace-DTitKvcxt75ynojrJjeN7p.webp';
 const BEDROOM_IMAGE = 'https://d2xsxph8kpxj0f.cloudfront.net/310519663457771596/CDGBXHppTB3VFJSZAKqvbh/bedroom-mountain-HWogqgxqEQraABWJXnxQRw.webp';
 const CHEF_IMAGE = 'https://d2xsxph8kpxj0f.cloudfront.net/310519663457771596/CDGBXHppTB3VFJSZAKqvbh/concierge-chef-LGMZQLWm8HsTsMxr9jye96.webp';
@@ -40,6 +41,7 @@ const SPA_IMAGE = 'https://d2xsxph8kpxj0f.cloudfront.net/310519663457771596/CDGB
 
 export default function Home() {
   const [, navigate] = useLocation();
+  const [activeApt, setActiveApt] = useState(0);
   const [formData, setFormData] = useState({ 
     name: '', 
     email: '', 
@@ -56,6 +58,7 @@ export default function Home() {
   const heroRef = useRef<HTMLDivElement>(null);
   const heroBgRef = useRef<HTMLDivElement>(null);
   const heroTitleRef = useRef<HTMLDivElement>(null);
+  const collectionRef = useRef<HTMLDivElement>(null);
   const hScrollRef = useRef<HTMLDivElement>(null);
   const hScrollTrackRef = useRef<HTMLDivElement>(null);
 
@@ -83,18 +86,18 @@ export default function Home() {
   // GSAP Animations
   useEffect(() => {
     const ctx = gsap.context(() => {
-      // Hero zoom
+      // Hero image zoom
       if (heroBgRef.current) {
         gsap.fromTo(heroBgRef.current, { scale: 1.12 }, { scale: 1, duration: 2.2, ease: 'power3.out' });
       }
 
-      // Hero title
+      // Hero title letter stagger
       if (heroTitleRef.current) {
         const letters = heroTitleRef.current.querySelectorAll('.hero-letter');
         gsap.fromTo(letters, { y: 120, opacity: 0 }, { y: 0, opacity: 1, duration: 1.2, stagger: 0.04, ease: 'power4.out', delay: 0.3 });
       }
 
-      // Scroll reveals
+      // Scroll-triggered reveals
       gsap.utils.toArray<HTMLElement>('.scroll-reveal').forEach((el) => {
         gsap.fromTo(el, { y: 60, opacity: 0 }, {
           y: 0, opacity: 1, duration: 1, ease: 'power3.out',
@@ -102,12 +105,12 @@ export default function Home() {
         });
       });
 
-      // Parallax images
+      // Parallax on images
       gsap.utils.toArray<HTMLElement>('.parallax-img').forEach((img) => {
         gsap.to(img, { yPercent: -15, ease: 'none', scrollTrigger: { trigger: img.parentElement, start: 'top bottom', end: 'bottom top', scrub: true } });
       });
 
-      // CONCIERGE: Pinned Horizontal Scroll
+      // Horizontal scroll section (CONCIERGE)
       if (hScrollRef.current && hScrollTrackRef.current) {
         const track = hScrollTrackRef.current;
         const totalWidth = track.scrollWidth - hScrollRef.current.offsetWidth;
@@ -117,7 +120,7 @@ export default function Home() {
           scrollTrigger: {
             trigger: hScrollRef.current,
             start: 'top top',
-            end: () => `+=${totalWidth + 600}`,
+            end: () => `+=${totalWidth + 400}`,
             scrub: 1,
             pin: true,
             anticipatePin: 1,
@@ -125,7 +128,7 @@ export default function Home() {
         });
       }
 
-      // Gold line reveal
+      // Gold line animation
       gsap.utils.toArray<HTMLElement>('.gold-reveal-line').forEach((line) => {
         gsap.fromTo(line, { scaleX: 0, transformOrigin: 'left' }, { scaleX: 1, duration: 1.2, ease: 'power3.out', scrollTrigger: { trigger: line, start: 'top 90%' } });
       });
@@ -223,38 +226,40 @@ export default function Home() {
         </div>
       </section>
 
-      {/* COLLECTION SECTION (Vertical List) */}
-      <section id="collection" style={{ padding: '15vh 4vw', background: '#0A0A0A' }}>
-        <div style={{ marginBottom: '10vh' }}>
-          <span className="section-label">КОЛЕКЦИЯ</span>
-          <h2 style={{ fontFamily: 'Tenor Sans, serif', fontSize: 'clamp(2rem, 4vw, 4rem)', color: '#EAEAEA', textTransform: 'uppercase', marginTop: '1.5rem' }}>ОТКРИЙТЕ ВАШИЯ ПРИЮТ</h2>
-        </div>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '8vh' }}>
-          {apartments.map((apt, i) => (
-            <div key={apt.id} className="scroll-reveal" style={{ display: 'grid', gridTemplateColumns: 'repeat(12, 1fr)', gap: '4rem', alignItems: 'center' }}>
-              <div style={{ gridColumn: i % 2 === 0 ? '1 / 8' : '5 / 13', order: i % 2 === 0 ? 1 : 2, position: 'relative', height: '60vh', overflow: 'hidden' }}>
-                <img src={apt.images[0]} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                <div style={{ position: 'absolute', top: '2rem', right: '2rem', fontFamily: 'Cinzel, serif', fontSize: '4rem', color: 'rgba(234,234,234,0.1)' }}>0{i + 1}</div>
-              </div>
-              <div style={{ gridColumn: i % 2 === 0 ? '9 / 13' : '1 / 5', order: i % 2 === 0 ? 2 : 1, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-                <h3 style={{ fontFamily: 'Tenor Sans, serif', fontSize: '2.2rem', color: '#EAEAEA', textTransform: 'uppercase', marginBottom: '1.5rem' }}>{apt.name}</h3>
-                <p style={{ color: 'rgba(234,234,234,0.4)', marginBottom: '2.5rem', lineHeight: 1.6 }}>{apt.description}</p>
-                <div style={{ display: 'flex', gap: '2rem', marginBottom: '3rem' }}>
-                  <div><div style={{ color: '#C5A059', fontSize: '1.2rem' }}>{apt.size}</div><div style={{ fontSize: '0.6rem', color: 'rgba(234,234,234,0.3)' }}>КВ.М.</div></div>
-                  <div><div style={{ color: '#C5A059', fontSize: '1.2rem' }}>{apt.bedrooms}</div><div style={{ fontSize: '0.6rem', color: 'rgba(234,234,234,0.3)' }}>СПАЛНИ</div></div>
+      {/* COLLECTION SECTION (Vertical List as requested) */}
+      <section id="collection" style={{ background: '#0A0A0A', padding: 'clamp(5rem, 8vw, 8rem) 0', position: 'relative', overflow: 'hidden' }}>
+        <div style={{ position: 'absolute', right: '-2vw', top: '50%', transform: 'translateY(-50%)', fontFamily: 'Cinzel, serif', fontSize: 'clamp(12rem, 25vw, 28rem)', color: 'transparent', WebkitTextStroke: '1px rgba(197,160,89,0.06)', lineHeight: 1, pointerEvents: 'none', userSelect: 'none' }}>{apartments[activeApt].number}</div>
+        <div style={{ maxWidth: '1440px', margin: '0 auto', padding: '0 4vw' }}>
+          <div className="scroll-reveal" style={{ marginBottom: '4rem' }}>
+            <span className="section-label">03 — КОЛЕКЦИЯТА</span>
+            <h2 style={{ fontFamily: 'Tenor Sans, serif', fontSize: 'clamp(2rem, 4vw, 3.5rem)', color: '#EAEAEA', letterSpacing: '0.05em', fontWeight: 400, margin: 0 }}>Седем пространства.<br /><span style={{ color: 'rgba(234,234,234,0.35)' }}>Един стандарт.</span></h2>
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '4rem', alignItems: 'start' }}>
+            <div>
+              {apartments.map((apt, i) => (
+                <div key={apt.id} className="apt-row" onClick={() => setActiveApt(i)} style={{ padding: '1.8rem 0', cursor: 'none', display: 'grid', gridTemplateColumns: '3rem 1fr auto', alignItems: 'center', gap: '1.5rem', borderBottom: `1px solid ${activeApt === i ? 'rgba(197, 160, 89, 0.5)' : 'rgba(234, 234, 234, 0.06)'}`, transition: 'all 0.3s ease', background: activeApt === i ? 'rgba(197, 160, 89, 0.03)' : 'transparent' }} data-cursor="hover">
+                  <span style={{ fontFamily: 'Cinzel, serif', fontSize: '0.75rem', color: activeApt === i ? '#C5A059' : 'rgba(197, 160, 89, 0.4)', letterSpacing: '0.1em' }}>{apt.number}</span>
+                  <div>
+                    <div style={{ fontFamily: 'Tenor Sans, serif', fontSize: 'clamp(0.9rem, 1.5vw, 1.2rem)', color: activeApt === i ? '#EAEAEA' : 'rgba(234, 234, 234, 0.55)', letterSpacing: '0.08em', marginBottom: '0.3rem' }}>{apt.name}</div>
+                    <div style={{ fontFamily: 'Satoshi, sans-serif', fontSize: '0.7rem', color: 'rgba(234, 234, 234, 0.3)', letterSpacing: '0.1em', textTransform: 'uppercase' }}>{apt.sqm} м² · {apt.view}</div>
+                  </div>
+                  <div style={{ width: '0.5rem', height: '0.5rem', borderRadius: '50%', background: '#C5A059', opacity: activeApt === i ? 1 : 0, transition: 'opacity 0.3s ease' }} />
                 </div>
-                <button onClick={() => navigate(`/apartment/${apt.id}`)} style={{ background: 'transparent', border: 'none', borderBottom: '1px solid #C5A059', color: '#EAEAEA', fontFamily: 'Cinzel, serif', padding: '0.5rem 0', alignSelf: 'flex-start' }}>ВИЖТЕ ПОВЕЧЕ</button>
-              </div>
+              ))}
             </div>
-          ))}
+            <div style={{ position: 'sticky', top: '15vh', height: '70vh', overflow: 'hidden' }}>
+              <img key={activeApt} src={apartments[activeApt].images[0]} style={{ width: '100%', height: '100%', objectFit: 'cover', animation: 'fadeIn 0.8s ease' }} />
+              <button onClick={() => navigate(`/apartment/${apartments[activeApt].id}`)} className="magnetic-btn" style={{ position: 'absolute', bottom: '2rem', right: '2rem', background: '#C5A059', color: '#0A0A0A', border: 'none', padding: '1rem 2rem', fontFamily: 'Cinzel, serif', fontSize: '0.7rem', letterSpacing: '0.2em' }}>ОТКРИЙТЕ ПОВЕЧЕ</button>
+            </div>
+          </div>
         </div>
       </section>
 
-      {/* CONCIERGE SECTION (Pinned Horizontal Scroll) */}
+      {/* CONCIERGE SECTION (Horizontal Scroll as requested) */}
       <section ref={hScrollRef} style={{ background: '#0A0A0A', position: 'relative' }}>
         <div ref={hScrollTrackRef} style={{ display: 'flex', height: '100vh', width: 'max-content', alignItems: 'center', padding: '0 10vw' }}>
           <div style={{ width: '40vw', paddingRight: '10vw' }}>
-            <span className="section-label">ПРЕДЛОЖЕНИЯ</span>
+            <span className="section-label">04 — ПРЕДЛОЖЕНИЯ</span>
             <h2 style={{ fontFamily: 'Tenor Sans, serif', fontSize: '4.5rem', color: '#C5A059', lineHeight: 1.1, textTransform: 'uppercase' }}>НАШИТЕ <br /> ПРЕДЛОЖЕНИЯ</h2>
           </div>
           {conciergeServices.map((service) => (
