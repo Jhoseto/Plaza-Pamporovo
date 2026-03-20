@@ -9,7 +9,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useLocation } from 'wouter';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { format } from 'date-fns';
+import { format, differenceInDays } from 'date-fns';
 import { Calendar as CalendarIcon, ChevronDown } from 'lucide-react';
 import Navigation from '@/components/Navigation';
 import CustomCursor from '@/components/CustomCursor';
@@ -56,6 +56,37 @@ export default function Home() {
     departureDate: undefined as Date | undefined 
   });
   const [formSent, setFormSent] = useState(false);
+  const [totalPrice, setTotalPrice] = useState<number | null>(null);
+  const [nights, setNights] = useState<number | null>(null);
+
+  // Calculate total price
+  useEffect(() => {
+    if (formData.arrivalDate && formData.departureDate && formData.apartmentId) {
+      const days = differenceInDays(formData.departureDate, formData.arrivalDate);
+      if (days > 0) {
+        const apt = apartments.find(a => a.id.toString() === formData.apartmentId);
+        if (apt) {
+          setNights(days);
+          setTotalPrice(days * apt.pricePerNight);
+          
+          // Animate price summary appearance
+          setTimeout(() => {
+            gsap.fromTo('.price-summary-reveal',
+              { opacity: 0, y: 20 },
+              { opacity: 1, y: 0, duration: 0.8, ease: 'power3.out' }
+            );
+          }, 10);
+        }
+      } else {
+        setNights(null);
+        setTotalPrice(null);
+      }
+    } else {
+      setNights(null);
+      setTotalPrice(null);
+    }
+  }, [formData.arrivalDate, formData.departureDate, formData.apartmentId]);
+
   const heroRef = useRef<HTMLDivElement>(null);
   const heroBgRef = useRef<HTMLDivElement>(null);
   const heroTitleRef = useRef<HTMLDivElement>(null);
@@ -1242,6 +1273,31 @@ export default function Home() {
                     style={{ resize: 'none' }}
                   />
                 </div>
+
+                {/* Price Summary Block */}
+                {totalPrice !== null && nights !== null && (
+                  <div className="price-summary-reveal" style={{ 
+                    borderTop: '1px solid rgba(197, 160, 89, 0.2)', 
+                    paddingTop: '2rem',
+                    marginTop: '1rem',
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'flex-end'
+                  }}>
+                    <div>
+                      <span style={{ fontFamily: 'Cinzel, serif', fontSize: '0.55rem', letterSpacing: '0.3em', color: 'rgba(197,160,89,0.6)', display: 'block', marginBottom: '0.5rem' }}>ОБОБЩЕНИЕ НА ПРЕСТОЯ</span>
+                      <div style={{ fontFamily: 'Satoshi, sans-serif', fontSize: '0.9rem', color: 'rgba(234,234,234,0.5)', letterSpacing: '0.05em' }}>
+                        {nights} {nights === 1 ? 'нощувка' : 'нощувки'} × {apartments.find(a => a.id.toString() === formData.apartmentId)?.pricePerNight} лв.
+                      </div>
+                    </div>
+                    <div style={{ textAlign: 'right' }}>
+                      <span style={{ fontFamily: 'Cinzel, serif', fontSize: '0.55rem', letterSpacing: '0.3em', color: 'rgba(197,160,89,0.6)', display: 'block', marginBottom: '0.5rem' }}>ОБЩА СУМА</span>
+                      <div style={{ fontFamily: 'Tenor Sans, serif', fontSize: '2rem', color: '#C5A059', letterSpacing: '0.05em' }}>
+                        {totalPrice.toLocaleString()} лв.
+                      </div>
+                    </div>
+                  </div>
+                )}
 
                 <div style={{ marginTop: '1rem' }}>
                   <button
