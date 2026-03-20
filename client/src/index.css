@@ -455,3 +455,13 @@
     margin-top: 2rem;
   }
 }
+
+/* Concierge Card Hover Effects */
+.concierge-card:hover .concierge-img {
+  opacity: 0.85 !important;
+  transform: scale(1.05);
+}
+
+.concierge-card:hover {
+  border: 1px solid rgba(197, 160, 89, 0.3) !important;
+}

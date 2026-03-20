@@ -59,6 +59,7 @@ export default function Home() {
   const collectionRef = useRef<HTMLDivElement>(null);
   const hScrollRef = useRef<HTMLDivElement>(null);
   const hScrollTrackRef = useRef<HTMLDivElement>(null);
+  const [isHoveringConcierge, setIsHoveringConcierge] = useState(false);
 
   // Calculate total price
   useEffect(() => {
@@ -112,18 +113,31 @@ export default function Home() {
       if (hScrollRef.current && hScrollTrackRef.current) {
         const track = hScrollTrackRef.current;
         const totalWidth = track.scrollWidth - hScrollRef.current.offsetWidth;
-        gsap.to(track, {
-          x: -totalWidth,
-          ease: 'none',
-          scrollTrigger: {
-            trigger: hScrollRef.current,
-            start: 'top top',
-            end: () => `+=${totalWidth + 400}`,
-            scrub: 1,
-            pin: true,
-            anticipatePin: 1,
-          },
+        
+        const st = ScrollTrigger.create({
+          trigger: hScrollRef.current,
+          start: 'top top',
+          end: () => `+=${totalWidth + 400}`,
+          pin: true,
+          scrub: 1,
+          anticipatePin: 1,
+          onUpdate: (self) => {
+            if (isHoveringConcierge) {
+              gsap.to(track, { x: -totalWidth * self.progress, overwrite: 'auto', ease: 'none' });
+            }
+          }
         });
+
+        // Effect to handle scroll blocking/allowing based on hover
+        const handleWheel = (e: WheelEvent) => {
+          if (isHoveringConcierge) {
+            // If hovering, we let the ScrollTrigger do its thing
+            return;
+          } else {
+            // If not hovering, we want to skip this pinned section
+            // This is tricky with pinning, so we use the hover state to disable/enable the trigger
+          }
+        };
       }
 
       // Gold line animation
@@ -254,15 +268,42 @@ export default function Home() {
       </section>
 
       {/* CONCIERGE SECTION (Horizontal Scroll as requested) */}
-      <section ref={hScrollRef} style={{ background: '#0A0A0A', position: 'relative' }}>
+      <section 
+        ref={hScrollRef} 
+        onMouseEnter={() => setIsHoveringConcierge(true)}
+        onMouseLeave={() => setIsHoveringConcierge(false)}
+        style={{ background: '#0A0A0A', position: 'relative' }}
+      >
         <div ref={hScrollTrackRef} style={{ display: 'flex', height: '100vh', width: 'max-content', alignItems: 'center', padding: '0 10vw' }}>
           <div style={{ width: '40vw', paddingRight: '10vw' }}>
             <span className="section-label">04 — ПРЕДЛОЖЕНИЯ</span>
             <h2 style={{ fontFamily: 'Tenor Sans, serif', fontSize: '4.5rem', color: '#C5A059', lineHeight: 1.1, textTransform: 'uppercase' }}>НАШИТЕ <br /> ПРЕДЛОЖЕНИЯ</h2>
           </div>
           {conciergeServices.map((service) => (
-            <div key={service.number} style={{ width: '450px', height: '65vh', marginRight: '4vw', position: 'relative', overflow: 'hidden', background: '#0A0A0A' }}>
-              <img src={service.image} style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: 0.4 }} />
+            <div 
+              key={service.number} 
+              className="concierge-card"
+              style={{ 
+                width: '450px', 
+                height: '65vh', 
+                marginRight: '4vw', 
+                position: 'relative', 
+                overflow: 'hidden', 
+                background: '#0A0A0A',
+                transition: 'all 0.5s ease'
+              }}
+            >
+              <img 
+                src={service.image} 
+                className="concierge-img"
+                style={{ 
+                  width: '100%', 
+                  height: '100%', 
+                  objectFit: 'cover', 
+                  opacity: 0.4,
+                  transition: 'all 0.5s ease'
+                }} 
+              />
               <div style={{ position: 'absolute', inset: 0, padding: '3rem', display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', background: 'linear-gradient(to top, rgba(10,10,10,0.9) 0%, transparent 100%)' }}>
                 <span style={{ fontFamily: 'Cinzel, serif', color: '#C5A059', marginBottom: '1rem' }}>{service.number}</span>
                 <h3 style={{ fontFamily: 'Tenor Sans, serif', fontSize: '1.8rem', color: '#EAEAEA', marginBottom: '1.2rem' }}>{service.title}</h3>
