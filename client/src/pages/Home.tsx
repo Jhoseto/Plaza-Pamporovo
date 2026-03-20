@@ -33,7 +33,6 @@ gsap.registerPlugin(ScrollTrigger);
 const HERO_IMAGE = 'https://d2xsxph8kpxj0f.cloudfront.net/310519663457771596/CDGBXHppTB3VFJSZAKqvbh/hero-pamporovo-hKcPiG4L4E98MCUqhhYFF2.webp';
 const MUX_VIDEO_ID = 'rR8P8mSaKDzz02TsftugTUdI00cQPJX00oy';
 const HERO_VIDEO_MP4 = `https://stream.mux.com/${MUX_VIDEO_ID}.mp4`;
-const HERO_VIDEO_HLS = `https://stream.mux.com/${MUX_VIDEO_ID}.m3u8`;
 const FIREPLACE_IMAGE = 'https://d2xsxph8kpxj0f.cloudfront.net/310519663457771596/CDGBXHppTB3VFJSZAKqvbh/interior-fireplace-DTitKvcxt75ynojrJjeN7p.webp';
 const BEDROOM_IMAGE = 'https://d2xsxph8kpxj0f.cloudfront.net/310519663457771596/CDGBXHppTB3VFJSZAKqvbh/bedroom-mountain-HWogqgxqEQraABWJXnxQRw.webp';
 const CHEF_IMAGE = 'https://d2xsxph8kpxj0f.cloudfront.net/310519663457771596/CDGBXHppTB3VFJSZAKqvbh/concierge-chef-LGMZQLWm8HsTsMxr9jye96.webp';
@@ -54,6 +53,13 @@ export default function Home() {
   const [totalPrice, setTotalPrice] = useState<number | null>(null);
   const [nights, setNights] = useState<number | null>(null);
 
+  // Refs for GSAP
+  const heroRef = useRef<HTMLDivElement>(null);
+  const heroBgRef = useRef<HTMLDivElement>(null);
+  const heroTitleRef = useRef<HTMLDivElement>(null);
+  const hScrollRef = useRef<HTMLDivElement>(null);
+  const hScrollTrackRef = useRef<HTMLDivElement>(null);
+
   // Calculate total price
   useEffect(() => {
     if (formData.arrivalDate && formData.departureDate && formData.apartmentId) {
@@ -64,13 +70,10 @@ export default function Home() {
           setNights(days);
           setTotalPrice(days * apt.pricePerNight);
           
-          // Animate price summary appearance
-          setTimeout(() => {
-            gsap.fromTo('.price-summary-reveal',
-              { opacity: 0, y: 20 },
-              { opacity: 1, y: 0, duration: 0.8, ease: 'power3.out' }
-            );
-          }, 10);
+          gsap.fromTo('.price-summary-reveal',
+            { opacity: 0, y: 20 },
+            { opacity: 1, y: 0, duration: 0.8, ease: 'power3.out' }
+          );
         }
       } else {
         setNights(null);
@@ -82,76 +85,34 @@ export default function Home() {
     }
   }, [formData.arrivalDate, formData.departureDate, formData.apartmentId]);
 
-  const heroRef = useRef<HTMLDivElement>(null);
-  const heroBgRef = useRef<HTMLDivElement>(null);
-  const heroTitleRef = useRef<HTMLDivElement>(null);
-  const hScrollRef = useRef<HTMLDivElement>(null);
-  const hScrollTrackRef = useRef<HTMLDivElement>(null);
-
   // GSAP Animations
   useEffect(() => {
     const ctx = gsap.context(() => {
-      // Hero image zoom
+      // Hero zoom
       if (heroBgRef.current) {
-        gsap.fromTo(heroBgRef.current,
-          { scale: 1.12 },
-          {
-            scale: 1,
-            duration: 2.2,
-            ease: 'power3.out',
-          }
-        );
+        gsap.fromTo(heroBgRef.current, { scale: 1.12 }, { scale: 1, duration: 2.2, ease: 'power3.out' });
       }
 
-      // Hero title letter stagger
+      // Hero title
       if (heroTitleRef.current) {
         const letters = heroTitleRef.current.querySelectorAll('.hero-letter');
-        gsap.fromTo(letters,
-          { y: 120, opacity: 0 },
-          {
-            y: 0,
-            opacity: 1,
-            duration: 1.2,
-            stagger: 0.04,
-            ease: 'power4.out',
-            delay: 0.3,
-          }
-        );
+        gsap.fromTo(letters, { y: 120, opacity: 0 }, { y: 0, opacity: 1, duration: 1.2, stagger: 0.04, ease: 'power4.out', delay: 0.3 });
       }
 
-      // Scroll-triggered reveals
+      // Scroll reveals
       gsap.utils.toArray<HTMLElement>('.scroll-reveal').forEach((el) => {
-        gsap.fromTo(el,
-          { y: 60, opacity: 0 },
-          {
-            y: 0,
-            opacity: 1,
-            duration: 1,
-            ease: 'power3.out',
-            scrollTrigger: {
-              trigger: el,
-              start: 'top 85%',
-              toggleActions: 'play none none none',
-            },
-          }
-        );
-      });
-
-      // Parallax on images
-      gsap.utils.toArray<HTMLElement>('.parallax-img').forEach((img) => {
-        gsap.to(img, {
-          yPercent: -15,
-          ease: 'none',
-          scrollTrigger: {
-            trigger: img.parentElement,
-            start: 'top bottom',
-            end: 'bottom top',
-            scrub: true,
-          },
+        gsap.fromTo(el, { y: 60, opacity: 0 }, {
+          y: 0, opacity: 1, duration: 1, ease: 'power3.out',
+          scrollTrigger: { trigger: el, start: 'top 85%', toggleActions: 'play none none none' }
         });
       });
 
-      // Horizontal scroll section
+      // Parallax images
+      gsap.utils.toArray<HTMLElement>('.parallax-img').forEach((img) => {
+        gsap.to(img, { yPercent: -15, ease: 'none', scrollTrigger: { trigger: img.parentElement, start: 'top bottom', end: 'bottom top', scrub: true } });
+      });
+
+      // COLLECTION: Pinned Horizontal Scroll
       if (hScrollRef.current && hScrollTrackRef.current) {
         const track = hScrollTrackRef.current;
         const totalWidth = track.scrollWidth - hScrollRef.current.offsetWidth;
@@ -161,7 +122,7 @@ export default function Home() {
           scrollTrigger: {
             trigger: hScrollRef.current,
             start: 'top top',
-            end: () => `+=${totalWidth + 400}`,
+            end: () => `+=${totalWidth + 600}`,
             scrub: 1,
             pin: true,
             anticipatePin: 1,
@@ -169,60 +130,16 @@ export default function Home() {
         });
       }
 
-      // Gold line animation
+      // Gold line reveal
       gsap.utils.toArray<HTMLElement>('.gold-reveal-line').forEach((line) => {
-        gsap.fromTo(line,
-          { scaleX: 0, transformOrigin: 'left' },
-          {
-            scaleX: 1,
-            duration: 1.2,
-            ease: 'power3.out',
-            scrollTrigger: {
-              trigger: line,
-              start: 'top 90%',
-            },
-          }
-        );
+        gsap.fromTo(line, { scaleX: 0, transformOrigin: 'left' }, { scaleX: 1, duration: 1.2, ease: 'power3.out', scrollTrigger: { trigger: line, start: 'top 90%' } });
       });
 
-      // Booking form fields stagger
-      const bookingFields = document.querySelectorAll('.booking-field');
-      if (bookingFields.length > 0) {
-        gsap.fromTo(bookingFields,
-          { y: 30, opacity: 0 },
-          {
-            y: 0,
-            opacity: 1,
-            duration: 1,
-            stagger: 0.1,
-            ease: 'power3.out',
-            scrollTrigger: {
-              trigger: '#booking',
-              start: 'top 60%',
-            },
-          }
-        );
-      }
-
-      // Premium submit button reveal
-      const submitBtn = document.querySelector('.premium-submit-btn');
-      if (submitBtn) {
-        gsap.fromTo(submitBtn,
-          { scale: 0.95, opacity: 0 },
-          {
-            scale: 1,
-            opacity: 1,
-            duration: 1.2,
-            delay: 0.5,
-            ease: 'expo.out',
-            scrollTrigger: {
-              trigger: '#booking',
-              start: 'top 50%',
-            },
-          }
-        );
-      }
-
+      // Booking form reveal
+      gsap.fromTo('.booking-field', { y: 30, opacity: 0 }, {
+        y: 0, opacity: 1, duration: 1, stagger: 0.1, ease: 'power3.out',
+        scrollTrigger: { trigger: '#booking', start: 'top 60%' }
+      });
     });
 
     return () => ctx.revert();
@@ -232,98 +149,33 @@ export default function Home() {
   useEffect(() => {
     let lenis: any;
     import('@studio-freight/lenis').then(({ default: Lenis }) => {
-      lenis = new Lenis({
-        duration: 1.4,
-        easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-        smoothWheel: true,
-      });
-
-      const raf = (time: number) => {
-        lenis.raf(time);
-        requestAnimationFrame(raf);
-      };
+      lenis = new Lenis({ duration: 1.4, easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)), smoothWheel: true });
+      const raf = (time: number) => { lenis.raf(time); requestAnimationFrame(raf); };
       requestAnimationFrame(raf);
-
       lenis.on('scroll', ScrollTrigger.update);
       gsap.ticker.add((time) => lenis.raf(time * 1000));
       gsap.ticker.lagSmoothing(0);
     });
-
-    return () => {
-      if (lenis) lenis.destroy();
-    };
+    return () => { if (lenis) lenis.destroy(); };
   }, []);
 
   const splitText = (text: string) => {
     return text.split('').map((char, i) => (
-      <span
-        key={i}
-        className="hero-letter"
-        style={{
-          display: 'inline-block',
-          opacity: 0,
-          whiteSpace: char === ' ' ? 'pre' : 'normal',
-        }}
-      >
+      <span key={i} className="hero-letter" style={{ display: 'inline-block', opacity: 0, whiteSpace: char === ' ' ? 'pre' : 'normal' }}>
         {char === ' ' ? '\u00A0' : char}
       </span>
     ));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    setFormSent(true);
-  };
-
   const conciergeServices = [
-    {
-      number: '01',
-      title: 'РЕСТОРАНТ',
-      desc: 'Изискана кухня и уютна атмосфера. Насладете се на традиционни родопски ястия и модерна гастрономия.',
-      image: CHEF_IMAGE,
-    },
-    {
-      number: '02',
-      title: 'СПА ЦЕНТЪР',
-      desc: 'Пълноценен релакс и възстановяване. Басейн, сауна и парни бани за вашето здраве и тонус.',
-      image: SPA_IMAGE,
-    },
-    {
-      number: '03',
-      title: 'СКИ ГАРДЕРОБ',
-      desc: 'Модерно оборудване и сигурност за вашата екипировка. Комфорт само на крачки от пистите.',
-      image: 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663458413005/uhXRuwuHobPnKCev.jpg',
-    },
-    {
-      number: '04',
-      title: 'ЗИМНИ ПРИКЛЮЧЕНИЯ',
-      desc: 'Нощно каране на писта "Снежанка 2", преходи с моторни шейни до връх Мургавец и панорамен тур с ратрак.',
-      image: 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663458413005/SuvwgckREWHBVDuC.jpg',
-    },
-    {
-      number: '05',
-      title: 'ВЕЛОПАРК ПАМПОРОВО',
-      desc: 'Най-големият велопарк на Балканите с над 35 км трасета за планинско колоездене от всяко ниво.',
-      image: 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663458413005/hVSJWZloYUlFmSFD.jpg',
-    },
-    {
-      number: '06',
-      title: 'ПРИКЛЮЧЕНСКИ ПАРК "ЯЗОВИРА"',
-      desc: 'Алпийски тролей, въжена градина, спортен риболов и зони за релакс сред чистия боров въздух.',
-      image: 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663458413005/DPwHoRbKyayssQHA.jpg',
-    },
-    {
-      number: '07',
-      title: 'КУЛТУРА И ПРИРОДА',
-      desc: 'Посещение на обсерватория Рожен, пещерите Дяволското гърло и Ягодинска, и панорамни преходи.',
-      image: BEDROOM_IMAGE,
-    },
-    {
-      number: '08',
-      title: 'РЕЛАКС И УЕЛНЕС',
-      desc: 'Външно джакузи с гледка към гората, йога сесии на открито и възстановяващи процедури.',
-      image: FIREPLACE_IMAGE,
-    },
+    { number: '01', title: 'РЕСТОРАНТ', desc: 'Изискана кухня и уютна атмосфера. Насладете се на традиционни родопски ястия и модерна гастрономия.', image: CHEF_IMAGE },
+    { number: '02', title: 'СПА ЦЕНТЪР', desc: 'Пълноценен релакс и възстановяване. Басейн, сауна и парни бани за вашето здраве и тонус.', image: SPA_IMAGE },
+    { number: '03', title: 'СКИ ГАРДЕРОБ', desc: 'Модерно оборудване и сигурност за вашата екипировка. Комфорт само на крачки от пистите.', image: 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663458413005/uhXRuwuHobPnKCev.jpg' },
+    { number: '04', title: 'ЗИМНИ ПРИКЛЮЧЕНИЯ', desc: 'Нощно каране на писта "Снежанка 2", преходи с моторни шейни до връх Мургавец и панорамен тур с ратрак.', image: 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663458413005/SuvwgckREWHBVDuC.jpg' },
+    { number: '05', title: 'ВЕЛОПАРК ПАМПОРОВО', desc: 'Най-големият велопарк на Балканите с над 35 км трасета за планинско колоездене от всяко ниво.', image: 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663458413005/hVSJWZloYUlFmSFD.jpg' },
+    { number: '06', title: 'ПРИКЛЮЧЕНСКИ ПАРК "ЯЗОВИРА"', desc: 'Алпийски тролей, въжена градина, спортен риболов и зони за релакс сред чистия боров въздух.', image: 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663458413005/DPwHoRbKyayssQHA.jpg' },
+    { number: '07', title: 'КУЛТУРА И ПРИРОДА', desc: 'Посещение на обсерватория Рожен, пещерите Дяволското гърло и Ягодинска, и панорамни преходи.', image: BEDROOM_IMAGE },
+    { number: '08', title: 'РЕЛАКС И УЕЛНЕС', desc: 'Външно джакузи с гледка към гората, йога сесии на открито и възстановяващи процедури.', image: FIREPLACE_IMAGE },
   ];
 
   return (
@@ -332,44 +184,16 @@ export default function Home() {
       <CustomCursor />
       <Navigation />
 
-      {/* SECTION 1: HERO */}
-      <section
-        ref={heroRef}
-        style={{
-          position: 'relative',
-          height: '100vh',
-          overflow: 'hidden',
-          display: 'flex',
-          alignItems: 'flex-end',
-        }}
-      >
-        <div
-          ref={heroBgRef}
-          style={{
-            position: 'absolute',
-            inset: '-10%',
-            backgroundImage: `url(${HERO_IMAGE})`,
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-          }}
-        >
+      {/* HERO SECTION */}
+      <section ref={heroRef} style={{ position: 'relative', height: '100vh', overflow: 'hidden', display: 'flex', alignItems: 'flex-end' }}>
+        <div ref={heroBgRef} style={{ position: 'absolute', inset: '-10%', backgroundImage: `url(${HERO_IMAGE})`, backgroundSize: 'cover', backgroundPosition: 'center' }}>
           <video autoPlay muted loop playsInline style={{ width: '100%', height: '100%', objectFit: 'cover' }}>
             <source src={HERO_VIDEO_MP4} type="video/mp4" />
           </video>
         </div>
         <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(10,10,10,0.98) 0%, rgba(10,10,10,0.4) 100%)' }} />
 
-        <div style={{
-          position: 'relative',
-          zIndex: 10,
-          width: '100%',
-          padding: '0 4vw 8vh',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'flex-end',
-          flexWrap: 'wrap',
-          gap: '4rem',
-        }}>
+        <div style={{ position: 'relative', zIndex: 10, width: '100%', padding: '0 4vw 8vh', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', flexWrap: 'wrap', gap: '4rem' }}>
           <div>
             <div style={{ fontFamily: 'Cinzel, serif', fontSize: '0.65rem', letterSpacing: '0.4em', color: '#C5A059', marginBottom: '1.5rem', opacity: 0, animation: 'fadeInUp 0.8s ease forwards' }}>ПАМПОРОВО · РОДОПИ · БЪЛГАРИЯ</div>
             <div ref={heroTitleRef} style={{ overflow: 'hidden' }}>
@@ -396,12 +220,12 @@ export default function Home() {
         </div>
       </section>
 
-      {/* SECTION 2: PHILOSOPHY */}
+      {/* PHILOSOPHY SECTION */}
       <section style={{ padding: '15vh 4vw' }}>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(12, 1fr)', gap: '2rem', alignItems: 'center' }}>
           <div className="scroll-reveal" style={{ gridColumn: '2 / 6' }}>
-            <span style={{ fontFamily: 'Cinzel, serif', color: '#C5A059', display: 'block', marginBottom: '2rem' }}>ФИЛОСОФИЯ</span>
-            <h2 style={{ fontFamily: 'Tenor Sans, serif', fontSize: '3rem', color: '#EAEAEA' }}>КЪДЕТО ЛУКСЪТ СРЕЩА ПЛАНИНАТА</h2>
+            <span className="section-label">ФИЛОСОФИЯ</span>
+            <h2 style={{ fontFamily: 'Tenor Sans, serif', fontSize: '3rem', color: '#EAEAEA', lineHeight: 1.2 }}>КЪДЕТО ЛУКСЪТ СРЕЩА ПЛАНИНАТА</h2>
             <p style={{ color: 'rgba(234,234,234,0.5)', lineHeight: 1.8 }}>Plaza Pamporovo не е просто място за нощувка. Това е внимателно проектирано пространство, в което всеки детайл е подчинен на Вашия комфорт.</p>
           </div>
           <div style={{ gridColumn: '7 / 12', height: '70vh', overflow: 'hidden' }}>
@@ -410,87 +234,104 @@ export default function Home() {
         </div>
       </section>
 
-      {/* SECTION 3: COLLECTION (Horizontal Scroll) */}
-      <section ref={hScrollRef} id="collection" style={{ background: '#0A0A0A' }}>
+      {/* COLLECTION SECTION (Horizontal Scroll) */}
+      <section ref={hScrollRef} id="collection" style={{ background: '#0A0A0A', position: 'relative' }}>
         <div ref={hScrollTrackRef} style={{ display: 'flex', height: '100vh', width: 'max-content', alignItems: 'center', padding: '0 10vw' }}>
           <div style={{ width: '40vw', paddingRight: '10vw' }}>
-            <span style={{ fontFamily: 'Cinzel, serif', color: '#C5A059', display: 'block', marginBottom: '2rem' }}>КОЛЕКЦИЯ</span>
-            <h2 style={{ fontFamily: 'Tenor Sans, serif', fontSize: '4rem', color: '#EAEAEA' }}>ОТКРИЙТЕ ВАШИЯ ПРИЮТ</h2>
+            <span className="section-label">КОЛЕКЦИЯ</span>
+            <h2 style={{ fontFamily: 'Tenor Sans, serif', fontSize: '4.5rem', color: '#EAEAEA', lineHeight: 1.1 }}>ОТКРИЙТЕ <br /> ВАШИЯ <br /> ПРИЮТ</h2>
           </div>
           {apartments.map((apt, i) => (
             <div key={apt.id} style={{ width: '75vw', height: '70vh', marginRight: '8vw', display: 'flex', gap: '4rem' }}>
               <div style={{ flex: 1, position: 'relative', overflow: 'hidden' }}>
                 <img src={apt.images[0]} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                <div style={{ position: 'absolute', top: '2rem', right: '2rem', fontFamily: 'Cinzel, serif', fontSize: '3rem', color: 'rgba(234,234,234,0.1)' }}>0{i + 1}</div>
+                <div style={{ position: 'absolute', top: '2rem', right: '2rem', fontFamily: 'Cinzel, serif', fontSize: '4rem', color: 'rgba(234,234,234,0.1)' }}>0{i + 1}</div>
               </div>
               <div style={{ width: '300px', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-                <h3 style={{ fontFamily: 'Tenor Sans, serif', fontSize: '1.8rem', color: '#EAEAEA', textTransform: 'uppercase' }}>{apt.name}</h3>
-                <p style={{ color: 'rgba(234,234,234,0.4)', marginBottom: '2rem' }}>{apt.description}</p>
-                <button onClick={() => navigate(`/apartment/${apt.id}`)} style={{ background: 'transparent', borderBottom: '1px solid #C5A059', color: '#EAEAEA', fontFamily: 'Cinzel, serif' }}>ВИЖТЕ ПОВЕЧЕ</button>
+                <h3 style={{ fontFamily: 'Tenor Sans, serif', fontSize: '2.2rem', color: '#EAEAEA', textTransform: 'uppercase', marginBottom: '1.5rem' }}>{apt.name}</h3>
+                <p style={{ color: 'rgba(234,234,234,0.4)', marginBottom: '2.5rem', lineHeight: 1.6 }}>{apt.description}</p>
+                <button onClick={() => navigate(`/apartment/${apt.id}`)} style={{ background: 'transparent', border: 'none', borderBottom: '1px solid #C5A059', color: '#EAEAEA', fontFamily: 'Cinzel, serif', padding: '0.5rem 0', alignSelf: 'flex-start' }}>ВИЖТЕ ПОВЕЧЕ</button>
               </div>
             </div>
           ))}
         </div>
       </section>
 
-      {/* SECTION 4: CONCIERGE */}
-      <section style={{ padding: '20vh 4vw' }}>
-        <div style={{ textAlign: 'center', marginBottom: '10vh' }}>
-          <h2 style={{ fontFamily: 'Tenor Sans, serif', fontSize: '4rem', color: '#C5A059' }}>НАШИТЕ ПРЕДЛОЖЕНИЯ</h2>
+      {/* CONCIERGE SECTION (Grid/Carousel style) */}
+      <section style={{ padding: '20vh 4vw', background: '#0A0A0A' }}>
+        <div style={{ textAlign: 'center', marginBottom: '12vh' }}>
+          <h2 className="scroll-reveal" style={{ fontFamily: 'Tenor Sans, serif', fontSize: '4rem', color: '#C5A059', letterSpacing: '0.1em' }}>НАШИТЕ ПРЕДЛОЖЕНИЯ</h2>
+          <div className="gold-reveal-line" style={{ width: '120px', height: '1px', background: '#C5A059', margin: '2.5rem auto' }} />
         </div>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '2px', background: 'rgba(197,160,89,0.1)' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(350px, 1fr))', gap: '2px', background: 'rgba(197,160,89,0.1)' }}>
           {conciergeServices.map((service) => (
-            <div key={service.number} style={{ position: 'relative', height: '500px', overflow: 'hidden', background: '#0A0A0A' }}>
-              <img src={service.image} style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: 0.4 }} />
-              <div style={{ position: 'absolute', inset: 0, padding: '3rem', display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', background: 'linear-gradient(to top, rgba(10,10,10,0.9) 0%, transparent 100%)' }}>
-                <span style={{ color: '#C5A059' }}>{service.number}</span>
-                <h3 style={{ color: '#EAEAEA' }}>{service.title}</h3>
-                <p style={{ color: 'rgba(234,234,234,0.5)' }}>{service.desc}</p>
+            <div key={service.number} className="service-card scroll-reveal" style={{ position: 'relative', height: '550px', overflow: 'hidden', background: '#0A0A0A' }}>
+              <img src={service.image} className="service-img" style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: 0.4, transition: 'all 1.2s ease' }} />
+              <div style={{ position: 'absolute', inset: 0, padding: '3.5rem', display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', background: 'linear-gradient(to top, rgba(10,10,10,0.9) 0%, transparent 100%)' }}>
+                <span style={{ fontFamily: 'Cinzel, serif', color: '#C5A059', marginBottom: '1rem' }}>{service.number}</span>
+                <h3 style={{ fontFamily: 'Tenor Sans, serif', fontSize: '1.8rem', color: '#EAEAEA', marginBottom: '1.2rem' }}>{service.title}</h3>
+                <p className="service-desc" style={{ color: 'rgba(234,234,234,0.5)', lineHeight: 1.6 }}>{service.desc}</p>
               </div>
             </div>
           ))}
         </div>
       </section>
 
-      {/* SECTION 5: BOOKING */}
-      <section id="booking" style={{ padding: '15vh 4vw', background: '#0A0A0A' }}>
-        <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
+      {/* BOOKING SECTION */}
+      <section id="booking" style={{ position: 'relative', padding: '15vh 4vw', background: '#0A0A0A', overflow: 'hidden' }}>
+        <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', fontFamily: 'Tenor Sans, serif', fontSize: '25vw', color: 'rgba(234,234,234,0.02)', whiteSpace: 'nowrap', zIndex: 0, pointerEvents: 'none' }}>PLAZA</div>
+        <div style={{ position: 'relative', zIndex: 1, maxWidth: '1200px', margin: '0 auto' }}>
           <div style={{ textAlign: 'center', marginBottom: '8vh' }}>
+            <span className="section-label">КОНТАКТИ</span>
             <h2 style={{ fontFamily: 'Tenor Sans, serif', fontSize: '4rem', color: '#EAEAEA' }}>ВАШАТА РЕЗЕРВАЦИЯ ТУК</h2>
           </div>
           <div style={{ background: 'rgba(15, 15, 15, 0.4)', backdropFilter: 'blur(30px)', border: '1px solid rgba(197, 160, 89, 0.15)', padding: '4rem' }}>
-            <form onSubmit={handleSubmit} style={{ display: 'grid', gap: '2.5rem' }}>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2.5rem' }}>
-                <input type="text" placeholder="ИМЕ" className="lux-input-v2" value={formData.name} onChange={e => setFormData(p => ({ ...p, name: e.target.value }))} />
-                <input type="email" placeholder="ИМЕЙЛ" className="lux-input-v2" value={formData.email} onChange={e => setFormData(p => ({ ...p, email: e.target.value }))} />
+            {formSent ? (
+              <div style={{ textAlign: 'center', padding: '4rem 0' }}>
+                <h3 style={{ fontFamily: 'Tenor Sans, serif', fontSize: '2rem', color: '#C5A059' }}>БЛАГОДАРИМ ВИ!</h3>
+                <button onClick={() => setFormSent(false)} style={{ marginTop: '2.5rem', background: 'transparent', border: '1px solid #C5A059', color: '#C5A059', padding: '1rem 2rem', fontFamily: 'Cinzel, serif' }}>НОВО ЗАПИТВАНЕ</button>
               </div>
-              <div style={{ display: 'grid', gridTemplateColumns: '1.5fr 1fr 1fr', gap: '2.5rem' }}>
-                <Select onValueChange={(val) => setFormData(p => ({ ...p, apartmentId: val }))}>
-                  <SelectTrigger className="lux-select-trigger"><SelectValue placeholder="ИЗБЕРЕТЕ АПАРТАМЕНТ" /></SelectTrigger>
-                  <SelectContent>{apartments.map(apt => <SelectItem key={apt.id} value={apt.id.toString()}>{apt.name}</SelectItem>)}</SelectContent>
-                </Select>
-                <Popover>
-                  <PopoverTrigger asChild><button className="lux-date-trigger">{formData.arrivalDate ? format(formData.arrivalDate, 'dd/MM/yyyy') : 'ПРИСТИГАНЕ'}</button></PopoverTrigger>
-                  <PopoverContent><Calendar mode="single" selected={formData.arrivalDate} onSelect={(date) => setFormData(p => ({ ...p, arrivalDate: date }))} /></PopoverContent>
-                </Popover>
-                <Popover>
-                  <PopoverTrigger asChild><button className="lux-date-trigger">{formData.departureDate ? format(formData.departureDate, 'dd/MM/yyyy') : 'ЗАМИНАВАНЕ'}</button></PopoverTrigger>
-                  <PopoverContent><Calendar mode="single" selected={formData.departureDate} onSelect={(date) => setFormData(p => ({ ...p, departureDate: date }))} /></PopoverContent>
-                </Popover>
-              </div>
-              {totalPrice !== null && (
-                <div className="price-summary-reveal" style={{ borderTop: '1px solid rgba(197, 160, 89, 0.2)', paddingTop: '2rem', display: 'flex', justifyContent: 'space-between' }}>
-                  <div style={{ color: '#C5A059', fontSize: '2rem' }}>ОБЩА СУМА: {totalPrice.toLocaleString()} лв.</div>
+            ) : (
+              <form onSubmit={(e) => { e.preventDefault(); setFormSent(true); }} style={{ display: 'grid', gap: '2.5rem' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2.5rem' }}>
+                  <div className="booking-field"><label className="section-label" style={{ fontSize: '0.55rem', marginBottom: '0.8rem', display: 'block' }}>ВАШЕТО ИМЕ</label><input type="text" required className="lux-input-v2" value={formData.name} onChange={e => setFormData(p => ({ ...p, name: e.target.value }))} /></div>
+                  <div className="booking-field"><label className="section-label" style={{ fontSize: '0.55rem', marginBottom: '0.8rem', display: 'block' }}>ИМЕЙЛ АДРЕС</label><input type="email" required className="lux-input-v2" value={formData.email} onChange={e => setFormData(p => ({ ...p, email: e.target.value }))} /></div>
                 </div>
-              )}
-              <button type="submit" className="premium-submit-btn">ИЗПРАТИ ЗАПИТВАНЕ</button>
-            </form>
+                <div style={{ display: 'grid', gridTemplateColumns: '1.5fr 1fr 1fr', gap: '2.5rem' }}>
+                  <div className="booking-field">
+                    <label className="section-label" style={{ fontSize: '0.55rem', marginBottom: '0.8rem', display: 'block' }}>ИЗБЕРЕТЕ АПАРТАМЕНТ</label>
+                    <Select onValueChange={(val) => setFormData(p => ({ ...p, apartmentId: val }))}>
+                      <SelectTrigger className="lux-select-trigger"><SelectValue placeholder="ИЗБЕРЕТЕ..." /></SelectTrigger>
+                      <SelectContent className="lux-select-content">{apartments.map(apt => <SelectItem key={apt.id} value={apt.id.toString()} className="lux-select-item">{apt.name}</SelectItem>)}</SelectContent>
+                    </Select>
+                  </div>
+                  <div className="booking-field">
+                    <label className="section-label" style={{ fontSize: '0.55rem', marginBottom: '0.8rem', display: 'block' }}>ПРИСТИГАНЕ</label>
+                    <Popover><PopoverTrigger asChild><button className="lux-date-trigger">{formData.arrivalDate ? format(formData.arrivalDate, 'dd/MM/yyyy') : 'ИЗБЕРЕТЕ ДАТА'}<CalendarIcon size={14} style={{ opacity: 0.4 }} /></button></PopoverTrigger>
+                    <PopoverContent className="lux-popover-content"><Calendar mode="single" selected={formData.arrivalDate} onSelect={(date) => setFormData(p => ({ ...p, arrivalDate: date }))} /></PopoverContent></Popover>
+                  </div>
+                  <div className="booking-field">
+                    <label className="section-label" style={{ fontSize: '0.55rem', marginBottom: '0.8rem', display: 'block' }}>ЗАМИНАВАНЕ</label>
+                    <Popover><PopoverTrigger asChild><button className="lux-date-trigger">{formData.departureDate ? format(formData.departureDate, 'dd/MM/yyyy') : 'ИЗБЕРЕТЕ ДАТА'}<CalendarIcon size={14} style={{ opacity: 0.4 }} /></button></PopoverTrigger>
+                    <PopoverContent className="lux-popover-content"><Calendar mode="single" selected={formData.departureDate} onSelect={(date) => setFormData(p => ({ ...p, departureDate: date }))} /></PopoverContent></Popover>
+                  </div>
+                </div>
+                {totalPrice !== null && (
+                  <div className="price-summary-reveal" style={{ borderTop: '1px solid rgba(197, 160, 89, 0.2)', paddingTop: '2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
+                    <div><span className="section-label" style={{ fontSize: '0.55rem' }}>ОБОБЩЕНИЕ НА ПРЕСТОЯ</span><div style={{ color: 'rgba(234,234,234,0.5)' }}>{nights} нощувки × {apartments.find(a => a.id.toString() === formData.apartmentId)?.pricePerNight} лв.</div></div>
+                    <div style={{ textAlign: 'right' }}><span className="section-label" style={{ fontSize: '0.55rem' }}>ОБЩА СУМА</span><div style={{ fontFamily: 'Tenor Sans, serif', fontSize: '2.5rem', color: '#C5A059' }}>{totalPrice.toLocaleString()} лв.</div></div>
+                  </div>
+                )}
+                <button type="submit" className="premium-submit-btn"><span>ИЗПРАТИ ЗАПИТВАНЕ</span></button>
+              </form>
+            )}
           </div>
         </div>
       </section>
 
-      <footer style={{ padding: '8vh 4vw', textAlign: 'center', borderTop: '1px solid rgba(234,234,234,0.05)' }}>
-        <div style={{ fontFamily: 'Tenor Sans, serif', fontSize: '1.5rem', color: '#EAEAEA' }}>PLAZA PAMPOROVO</div>
+      <footer style={{ padding: '8vh 4vw', borderTop: '1px solid rgba(234,234,234,0.05)', textAlign: 'center' }}>
+        <div style={{ fontFamily: 'Tenor Sans, serif', fontSize: '1.8rem', color: '#EAEAEA', marginBottom: '1.5rem' }}>PLAZA PAMPOROVO</div>
+        <div style={{ color: 'rgba(234,234,234,0.3)', fontSize: '0.7rem' }}>© 2024 ВСИЧКИ ПРАВА ЗАПАЗЕНИ. ДИЗАЙН И КОНЦЕПЦИЯ ОТ PLAZA GROUP.</div>
       </footer>
     </div>
   );
