@@ -10,7 +10,7 @@ import { useLocation } from 'wouter';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { format, differenceInDays } from 'date-fns';
-import { Calendar as CalendarIcon, ChevronDown } from 'lucide-react';
+import { Calendar as CalendarIcon, ChevronDown, MapPin, Wind, Snowflake, Thermometer } from 'lucide-react';
 import Navigation from '@/components/Navigation';
 import CustomCursor from '@/components/CustomCursor';
 import { apartments } from '@/lib/apartments';
@@ -31,10 +31,6 @@ import {
 gsap.registerPlugin(ScrollTrigger);
 
 const HERO_IMAGE = 'https://d2xsxph8kpxj0f.cloudfront.net/310519663457771596/CDGBXHppTB3VFJSZAKqvbh/hero-pamporovo-hKcPiG4L4E98MCUqhhYFF2.webp';
-// Mux Playback/Asset ID (goes into the stream URL)
-// Example: `https://stream.mux.com/<id>.mp4` or `.m3u8`
-// NOTE: Mux `player.mux.com/<id>` uses a *playback id*.
-// Direct stream URLs also expect the playback id, not necessarily the asset id.
 const MUX_VIDEO_ID = 'rR8P8mSaKDzz02TsftugTUdI00cQPJX00oy';
 const HERO_VIDEO_MP4 = `https://stream.mux.com/${MUX_VIDEO_ID}.mp4`;
 const HERO_VIDEO_HLS = `https://stream.mux.com/${MUX_VIDEO_ID}.m3u8`;
@@ -327,7 +323,7 @@ export default function Home() {
     {
       number: '08',
       title: 'РЕЛАКС И УЕЛНЕС',
-      desc: 'Външно джакузи с гледка към гората, йога сесии на открито и възстановяващи процедури.',
+      desc: 'Външно джакузи con гледка към гората, йога сесии на открито и възстановяващи процедури.',
       image: FIREPLACE_IMAGE,
     },
   ];
@@ -413,607 +409,457 @@ export default function Home() {
           }}
         />
 
-        {/* Hero content */}
+        {/* Hero content wrapper */}
         <div style={{
           position: 'relative',
           zIndex: 10,
+          width: '100%',
           padding: '0 4vw 8vh',
-          maxWidth: '90vw',
-        }}>
-          {/* Label */}
-          <div style={{
-            fontFamily: 'Cinzel, serif',
-            fontSize: '0.65rem',
-            letterSpacing: '0.4em',
-            color: '#C5A059',
-            textTransform: 'uppercase',
-            marginBottom: '1.5rem',
-            opacity: 0,
-            animation: 'fadeInUp 0.8s ease 0.1s forwards',
-          }}>
-            ПАМПОРОВО · РОДОПИ · БЪЛГАРИЯ
-          </div>
-
-          {/* Main title */}
-          <div
-            ref={heroTitleRef}
-            style={{
-              overflow: 'hidden',
-              lineHeight: 1,
-              marginBottom: '0.3rem',
-            }}
-          >
-            <h1 style={{
-              fontFamily: 'Tenor Sans, serif',
-              fontSize: 'clamp(2.2rem, 5.5vw, 6.5rem)',
-              color: '#EAEAEA',
-              letterSpacing: '0.05em',
-              margin: 0,
-              lineHeight: 1,
-              fontWeight: 400,
-              whiteSpace: 'nowrap',
-            }}>
-              {splitText('PLAZA')}
-            </h1>
-          </div>
-          <div style={{ overflow: 'hidden', lineHeight: 1 }}>
-            <h1 style={{
-              fontFamily: 'Cinzel, serif',
-              fontSize: 'clamp(2.2rem, 5.5vw, 6.5rem)',
-              color: '#C5A059',
-              letterSpacing: '0.05em',
-              margin: 0,
-              lineHeight: 1,
-              fontWeight: 400,
-              whiteSpace: 'nowrap',
-            }}>
-              {splitText('APARTMENTS')}
-            </h1>
-          </div>
-
-          {/* Subtitle */}
-          <div style={{
-            marginTop: '2rem',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '1.5rem',
-            opacity: 0,
-            animation: 'fadeInUp 0.8s ease 1.4s forwards',
-          }}>
-            <div style={{ width: '40px', height: '1px', background: '#C5A059' }} />
-            <p style={{
-              fontFamily: 'Satoshi, sans-serif',
-              fontSize: '0.85rem',
-              color: 'rgba(234,234,234,0.6)',
-              letterSpacing: '0.15em',
-              textTransform: 'uppercase',
-              margin: 0,
-            }}>
-              Седем изключителни апартамента. Едно неповторимо преживяване.
-            </p>
-          </div>
-
-          {/* CTA */}
-          <div style={{
-            marginTop: '3rem',
-            opacity: 0,
-            animation: 'fadeInUp 0.8s ease 1.7s forwards',
-          }}>
-            <button
-              onClick={() => {
-                const el = document.querySelector('#collection');
-                if (el) el.scrollIntoView({ behavior: 'smooth' });
-              }}
-              className="magnetic-btn"
-              style={{
-                border: '1px solid rgba(197,160,89,0.5)',
-                padding: '1rem 3rem',
-                fontFamily: 'Cinzel, serif',
-                fontSize: '0.7rem',
-                letterSpacing: '0.3em',
-                color: '#EAEAEA',
-                textTransform: 'uppercase',
-                background: 'transparent',
-              }}
-              data-cursor="hover"
-            >
-              <span>ИЗСЛЕДВАЙ КОЛЕКЦИЯТА</span>
-            </button>
-          </div>
-        </div>
-
-        {/* Scroll indicator */}
-        <div style={{
-          position: 'absolute',
-          right: '3rem',
-          bottom: '3rem',
           display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          gap: '0.5rem',
-          opacity: 0,
-          animation: 'fadeInUp 0.8s ease 2s forwards',
+          justifyContent: 'space-between',
+          alignItems: 'flex-end',
+          flexWrap: 'wrap',
+          gap: '4rem',
         }}>
-          <span style={{
-            fontFamily: 'Cinzel, serif',
-            fontSize: '0.55rem',
-            letterSpacing: '0.3em',
-            color: 'rgba(197,160,89,0.6)',
-            writingMode: 'vertical-rl',
-            textTransform: 'uppercase',
-          }}>
-            СКРОЛИРАЙ
-          </span>
-          <div style={{
-            width: '1px',
-            height: '60px',
-            background: 'linear-gradient(to bottom, rgba(197,160,89,0.6), transparent)',
-            animation: 'scrollLine 2s ease-in-out infinite',
-          }} />
-        </div>
-      </section>
+          {/* Left: Main Titles */}
+          <div style={{ flex: '1 1 500px' }}>
+            {/* Label */}
+            <div style={{
+              fontFamily: 'Cinzel, serif',
+              fontSize: '0.65rem',
+              letterSpacing: '0.4em',
+              color: '#C5A059',
+              textTransform: 'uppercase',
+              marginBottom: '1.5rem',
+              opacity: 0,
+              animation: 'fadeInUp 0.8s ease 0.1s forwards',
+            }}>
+              ПАМПОРОВО · РОДОПИ · БЪЛГАРИЯ
+            </div>
 
-      {/* ═══════════════════════════════════════════════════════
-          SECTION 2: PHILOSOPHY
-      ═══════════════════════════════════════════════════════ */}
-      <section
-        id="philosophy"
-        style={{
-          background: '#FFFFFF',
-          padding: 'clamp(5rem, 10vw, 10rem) 0',
-          overflow: 'hidden',
-        }}
-      >
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: '1fr 1fr',
-          gap: '0',
-          maxWidth: '1440px',
-          margin: '0 auto',
-        }}>
-          {/* Left: Text */}
-          <div style={{
-            padding: 'clamp(3rem, 6vw, 6rem) clamp(2rem, 5vw, 6rem)',
+            {/* Main title */}
+            <div
+              ref={heroTitleRef}
+              style={{
+                overflow: 'hidden',
+                lineHeight: 1,
+                marginBottom: '0.3rem',
+              }}
+            >
+              <h1 style={{
+                fontFamily: 'Tenor Sans, serif',
+                fontSize: 'clamp(2.2rem, 5.5vw, 6.5rem)',
+                color: '#EAEAEA',
+                letterSpacing: '0.05em',
+                margin: 0,
+                lineHeight: 1,
+                fontWeight: 400,
+                whiteSpace: 'nowrap',
+              }}>
+                {splitText('PLAZA')}
+              </h1>
+            </div>
+            <div style={{ overflow: 'hidden', lineHeight: 1 }}>
+              <h1 style={{
+                fontFamily: 'Cinzel, serif',
+                fontSize: 'clamp(2.2rem, 5.5vw, 6.5rem)',
+                color: '#C5A059',
+                letterSpacing: '0.05em',
+                margin: 0,
+                lineHeight: 1,
+                fontWeight: 400,
+                whiteSpace: 'nowrap',
+              }}>
+                {splitText('APARTMENTS')}
+              </h1>
+            </div>
+
+            {/* Subtitle */}
+            <div style={{
+              marginTop: '2rem',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '1.5rem',
+              opacity: 0,
+              animation: 'fadeInUp 0.8s ease 1.4s forwards',
+            }}>
+              <div style={{ width: '40px', height: '1px', background: '#C5A059' }} />
+              <p style={{
+                fontFamily: 'Satoshi, sans-serif',
+                fontSize: '0.85rem',
+                color: 'rgba(234,234,234,0.6)',
+                letterSpacing: '0.15em',
+                textTransform: 'uppercase',
+                margin: 0,
+              }}>
+                Седем изключителни апартамента. Едно неповторимо преживяване.
+              </p>
+            </div>
+
+            {/* CTA */}
+            <div style={{
+              marginTop: '3rem',
+              opacity: 0,
+              animation: 'fadeInUp 0.8s ease 1.7s forwards',
+            }}>
+              <button
+                onClick={() => document.getElementById('collection')?.scrollIntoView({ behavior: 'smooth' })}
+                className="magnetic-btn"
+                style={{
+                  border: '1px solid rgba(197,160,89,0.5)',
+                  padding: '1.2rem 2.5rem',
+                  fontFamily: 'Cinzel, serif',
+                  fontSize: '0.7rem',
+                  letterSpacing: '0.3em',
+                  color: '#EAEAEA',
+                  textTransform: 'uppercase',
+                  background: 'transparent',
+                }}
+                data-cursor="hover"
+              >
+                <span>РАЗГЛЕДАЙ КОЛЕКЦИЯТА</span>
+              </button>
+            </div>
+          </div>
+
+          {/* Right: Premium Widget Panel */}
+          <div className="hero-right-panel" style={{ 
+            flex: '0 1 380px',
             display: 'flex',
             flexDirection: 'column',
-            justifyContent: 'center',
+            gap: '1.5rem',
+            opacity: 0,
+            transform: 'translateX(30px)',
+            animation: 'fadeInRight 1.2s ease 0.8s forwards',
           }}>
-            <div className="scroll-reveal">
-              <span style={{
-                fontFamily: 'Cinzel, serif',
-                fontSize: '0.6rem',
-                letterSpacing: '0.4em',
-                color: '#C5A059',
-                textTransform: 'uppercase',
-                display: 'block',
-                marginBottom: '2rem',
-              }}>
-                02 — ФИЛОСОФИЯ
-              </span>
-            </div>
-
-            <div className="scroll-reveal" style={{ transitionDelay: '0.1s' }}>
-              <h2 style={{
-                fontFamily: 'Tenor Sans, serif',
-                fontSize: 'clamp(2rem, 4vw, 3.5rem)',
-                color: '#1A1A1A',
-                lineHeight: 1.15,
-                letterSpacing: '0.02em',
-                marginBottom: '2rem',
-                fontWeight: 400,
-              }}>
-                Не просто нощувка.<br />
-                <em style={{ fontStyle: 'normal', color: '#C5A059' }}>Преживяване.</em>
-              </h2>
-            </div>
-
-            <div className="scroll-reveal" style={{ transitionDelay: '0.2s' }}>
-              <div style={{
-                width: '40px',
-                height: '1px',
-                background: '#C5A059',
-                marginBottom: '2rem',
-              }} />
-              <p style={{
-                fontFamily: 'Satoshi, sans-serif',
-                fontSize: '1rem',
-                color: '#555',
-                lineHeight: 1.8,
-                fontWeight: 300,
-                maxWidth: '420px',
-              }}>
-                В сърцето на Родопите, на 1650 метра, седем апартамента преосмислят понятието за планински лукс. Всяко пространство е проектирано с хирургична прецизност — материали, светлина, тишина.
-              </p>
-            </div>
-
-            <div className="scroll-reveal" style={{ transitionDelay: '0.3s', marginTop: '2.5rem' }}>
-              <p style={{
-                fontFamily: 'Satoshi, sans-serif',
-                fontSize: '1rem',
-                color: '#555',
-                lineHeight: 1.8,
-                fontWeight: 300,
-                maxWidth: '420px',
-              }}>
-                Тук не се идва да се спи. Тук се идва да се живее — макар и за кратко — по различен начин.
-              </p>
-            </div>
-
-            <div className="scroll-reveal" style={{ transitionDelay: '0.4s', marginTop: '3rem' }}>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem' }}>
-                {[
-                  { num: '7', label: 'Изключителни апартамента' },
-                  { num: '1650м', label: 'Надморска височина' },
-                  { num: '24/7', label: 'Консиерж услуга' },
-                  { num: '100%', label: 'Лично пространство' },
-                ].map(item => (
-                  <div key={item.label}>
-                    <div style={{
-                      fontFamily: 'Cinzel, serif',
-                      fontSize: '1.8rem',
-                      color: '#C5A059',
-                      letterSpacing: '0.05em',
-                    }}>
-                      {item.num}
-                    </div>
-                    <div style={{
-                      fontFamily: 'Satoshi, sans-serif',
-                      fontSize: '0.7rem',
-                      color: '#999',
-                      letterSpacing: '0.1em',
-                      textTransform: 'uppercase',
-                      marginTop: '0.3rem',
-                    }}>
-                      {item.label}
-                    </div>
+            {/* Weather & Ski Widget */}
+            <div style={{
+              background: 'rgba(15, 15, 15, 0.4)',
+              backdropFilter: 'blur(20px)',
+              border: '1px solid rgba(197, 160, 89, 0.15)',
+              padding: '1.5rem',
+              borderRadius: '2px',
+            }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1.2rem', alignItems: 'center' }}>
+                <span style={{ fontFamily: 'Cinzel, serif', fontSize: '0.55rem', letterSpacing: '0.3em', color: '#C5A059' }}>УСЛОВИЯ В ПАМПОРОВО</span>
+                <span style={{ fontFamily: 'Satoshi, sans-serif', fontSize: '0.6rem', color: 'rgba(234,234,234,0.4)', letterSpacing: '0.1em' }}>LIVE UPDATE</span>
+              </div>
+              
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
+                  <Thermometer size={16} color="#C5A059" />
+                  <div>
+                    <div style={{ fontSize: '1.2rem', color: '#EAEAEA', fontFamily: 'Tenor Sans, serif' }}>-2°C</div>
+                    <div style={{ fontSize: '0.5rem', color: 'rgba(234,234,234,0.4)', letterSpacing: '0.1em' }}>ТЕМПЕРАТУРА</div>
                   </div>
-                ))}
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
+                  <Snowflake size={16} color="#C5A059" />
+                  <div>
+                    <div style={{ fontSize: '1.2rem', color: '#EAEAEA', fontFamily: 'Tenor Sans, serif' }}>85 cm</div>
+                    <div style={{ fontSize: '0.5rem', color: 'rgba(234,234,234,0.4)', letterSpacing: '0.1em' }}>СНЕЖНА ПОКРИВКА</div>
+                  </div>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
+                  <Wind size={16} color="#C5A059" />
+                  <div>
+                    <div style={{ fontSize: '1.2rem', color: '#EAEAEA', fontFamily: 'Tenor Sans, serif' }}>12 km/h</div>
+                    <div style={{ fontSize: '0.5rem', color: 'rgba(234,234,234,0.4)', letterSpacing: '0.1em' }}>ВЯТЪР (СИ)</div>
+                  </div>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
+                  <div style={{ width: '16px', height: '16px', borderRadius: '50%', background: '#4ade80', boxShadow: '0 0 10px rgba(74, 222, 128, 0.3)' }} />
+                  <div>
+                    <div style={{ fontSize: '1.2rem', color: '#EAEAEA', fontFamily: 'Tenor Sans, serif' }}>ОТВОРЕНИ</div>
+                    <div style={{ fontSize: '0.5rem', color: 'rgba(234,234,234,0.4)', letterSpacing: '0.1em' }}>СКИ ПИСТИ</div>
+                  </div>
+                </div>
               </div>
             </div>
-          </div>
 
-          {/* Right: Image with parallax */}
-          <div
-            style={{
-              position: 'relative',
-              overflow: 'hidden',
-              minHeight: '600px',
-            }}
-            data-cursor="view"
-          >
-            <img
-              src={FIREPLACE_IMAGE}
-              alt="Luxury interior"
-              className="parallax-img"
+            {/* Quick Navigation Button */}
+            <a 
+              href="https://www.google.com/maps/dir/?api=1&destination=41.643798,24.690415" 
+              target="_blank" 
+              rel="noopener noreferrer"
               style={{
-                width: '100%',
-                height: '120%',
-                objectFit: 'cover',
-                objectPosition: 'center',
-                display: 'block',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                background: 'rgba(197, 160, 89, 0.05)',
+                border: '1px solid rgba(197, 160, 89, 0.2)',
+                padding: '1.2rem 1.5rem',
+                textDecoration: 'none',
+                transition: 'all 0.3s ease',
               }}
-            />
-            {/* Gold overlay strip */}
+              className="nav-btn-hover"
+              data-cursor="hover"
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                <MapPin size={18} color="#C5A059" />
+                <span style={{ fontFamily: 'Cinzel, serif', fontSize: '0.75rem', letterSpacing: '0.3em', color: '#EAEAEA' }}>НАВИГАЦИЯ</span>
+              </div>
+              <ChevronDown size={14} color="#C5A059" style={{ transform: 'rotate(-90deg)' }} />
+            </a>
+
+            {/* Compact Registration/Booking CTA */}
             <div style={{
-              position: 'absolute',
-              left: 0,
-              top: 0,
-              bottom: 0,
-              width: '3px',
-              background: 'linear-gradient(to bottom, transparent, #C5A059, transparent)',
-            }} />
+              background: 'rgba(234, 234, 234, 0.03)',
+              border: '1px solid rgba(234, 234, 234, 0.08)',
+              padding: '1.5rem',
+              borderRadius: '2px',
+            }}>
+              <h4 style={{ fontFamily: 'Tenor Sans, serif', fontSize: '1.1rem', color: '#EAEAEA', marginBottom: '0.5rem', fontWeight: 400 }}>БЪРЗА РЕЗЕРВАЦИЯ</h4>
+              <p style={{ fontFamily: 'Satoshi, sans-serif', fontSize: '0.75rem', color: 'rgba(234,234,234,0.4)', marginBottom: '1.5rem', lineHeight: 1.5 }}>Изберете дати и апартамент за Вашия престой.</p>
+              
+              <button 
+                onClick={() => document.getElementById('booking')?.scrollIntoView({ behavior: 'smooth' })}
+                style={{
+                  width: '100%',
+                  background: '#C5A059',
+                  border: 'none',
+                  padding: '1rem',
+                  fontFamily: 'Cinzel, serif',
+                  fontSize: '0.65rem',
+                  letterSpacing: '0.3em',
+                  color: '#0A0A0A',
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                  transition: 'all 0.3s ease',
+                }}
+                className="hero-cta-btn"
+                data-cursor="hover"
+              >
+                РЕЗЕРВИРАЙ СЕГА
+              </button>
+            </div>
           </div>
         </div>
       </section>
 
       {/* ═══════════════════════════════════════════════════════
-          SECTION 3: THE COLLECTION
+          SECTION 2: PHILOSOPHY (The Parallax Split)
       ═══════════════════════════════════════════════════════ */}
-      <section
-        id="collection"
-        ref={collectionRef}
-        style={{
-          background: '#0A0A0A',
-          padding: 'clamp(5rem, 8vw, 8rem) 0',
-          position: 'relative',
-          overflow: 'hidden',
-        }}
-      >
-        {/* Ghost number background */}
+      <section style={{ position: 'relative', padding: '15vh 4vw' }}>
         <div style={{
-          position: 'absolute',
-          right: '-2vw',
-          top: '50%',
-          transform: 'translateY(-50%)',
-          fontFamily: 'Cinzel, serif',
-          fontSize: 'clamp(12rem, 25vw, 28rem)',
-          color: 'transparent',
-          WebkitTextStroke: '1px rgba(197,160,89,0.06)',
-          lineHeight: 1,
-          pointerEvents: 'none',
-          userSelect: 'none',
-          transition: 'opacity 0.5s ease',
+          display: 'grid',
+          gridTemplateColumns: 'repeat(12, 1fr)',
+          gap: '2rem',
+          alignItems: 'center',
         }}>
-          {apartments[activeApt].number}
-        </div>
-
-        <div style={{ maxWidth: '1440px', margin: '0 auto', padding: '0 4vw' }}>
-          {/* Section header */}
-          <div className="scroll-reveal" style={{ marginBottom: '4rem' }}>
+          <div className="scroll-reveal" style={{ gridColumn: '2 / 6' }}>
             <span style={{
               fontFamily: 'Cinzel, serif',
               fontSize: '0.6rem',
               letterSpacing: '0.4em',
               color: '#C5A059',
-              textTransform: 'uppercase',
               display: 'block',
-              marginBottom: '1rem',
+              marginBottom: '2rem',
             }}>
-              03 — КОЛЕКЦИЯТА
+              ФИЛОСОФИЯ
             </span>
             <h2 style={{
               fontFamily: 'Tenor Sans, serif',
-              fontSize: 'clamp(2rem, 4vw, 3.5rem)',
+              fontSize: 'clamp(1.8rem, 3vw, 3.5rem)',
               color: '#EAEAEA',
-              letterSpacing: '0.05em',
-              fontWeight: 400,
-              margin: 0,
+              lineHeight: 1.2,
+              marginBottom: '2.5rem',
             }}>
-              Седем пространства.<br />
-              <span style={{ color: 'rgba(234,234,234,0.35)' }}>Един стандарт.</span>
+              КЪДЕТО ЛУКСЪТ СРЕЩА <br /> ПЛАНИНАТА
             </h2>
+            <p style={{
+              fontFamily: 'Satoshi, sans-serif',
+              fontSize: '0.95rem',
+              color: 'rgba(234,234,234,0.5)',
+              lineHeight: 1.8,
+              maxWidth: '400px',
+            }}>
+              Plaza Pamporovo не е просто място за нощувка. Това е внимателно проектирано пространство, в което всеки детайл е подчинен на Вашия комфорт. От селекцията на материалите до панорамните гледки — тук тишината е новият лукс.
+            </p>
           </div>
 
           <div style={{
-            display: 'grid',
-            gridTemplateColumns: '1fr 1fr',
-            gap: '4rem',
-            alignItems: 'start',
+            gridColumn: '7 / 12',
+            position: 'relative',
+            height: '70vh',
+            overflow: 'hidden',
           }}>
-            {/* Left: Apartment list */}
-            <div>
-              {apartments.map((apt, i) => (
-                <div
-                  key={apt.id}
-                  className="apt-row"
-                  onClick={() => setActiveApt(i)}
-                  style={{
-                    padding: '1.8rem 0',
-                    cursor: 'none',
-                    display: 'grid',
-                    gridTemplateColumns: '3rem 1fr auto',
-                    alignItems: 'center',
-                    gap: '1.5rem',
-                    borderBottom: `1px solid ${activeApt === i ? 'rgba(197,160,89,0.5)' : 'rgba(234,234,234,0.06)'}`,
-                    transition: 'all 0.3s ease',
-                    background: activeApt === i ? 'rgba(197,160,89,0.03)' : 'transparent',
-                  }}
-                  data-cursor="hover"
-                >
-                  <span style={{
-                    fontFamily: 'Cinzel, serif',
-                    fontSize: '0.75rem',
-                    color: activeApt === i ? '#C5A059' : 'rgba(197,160,89,0.4)',
-                    letterSpacing: '0.1em',
-                    transition: 'color 0.3s ease',
-                  }}>
-                    {apt.number}
-                  </span>
-
-                  <div>
-                    <div style={{
-                      fontFamily: 'Tenor Sans, serif',
-                      fontSize: 'clamp(0.9rem, 1.5vw, 1.2rem)',
-                      color: activeApt === i ? '#EAEAEA' : 'rgba(234,234,234,0.55)',
-                      letterSpacing: '0.08em',
-                      transition: 'color 0.3s ease',
-                      marginBottom: '0.3rem',
-                    }}>
-                      {apt.name}
-                    </div>
-                    <div style={{
-                      fontFamily: 'Satoshi, sans-serif',
-                      fontSize: '0.7rem',
-                      color: 'rgba(234,234,234,0.3)',
-                      letterSpacing: '0.1em',
-                      textTransform: 'uppercase',
-                    }}>
-                      {apt.sqm} м² · {apt.view}
-                    </div>
-                  </div>
-
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      navigate(`/apartment/${apt.id}`);
-                    }}
-                    style={{
-                      background: 'transparent',
-                      border: `1px solid ${activeApt === i ? 'rgba(197,160,89,0.6)' : 'rgba(234,234,234,0.15)'}`,
-                      padding: '0.5rem 1.2rem',
-                      fontFamily: 'Cinzel, serif',
-                      fontSize: '0.55rem',
-                      letterSpacing: '0.25em',
-                      color: activeApt === i ? '#C5A059' : 'rgba(234,234,234,0.4)',
-                      textTransform: 'uppercase',
-                      transition: 'all 0.3s ease',
-                      cursor: 'none',
-                    }}
-                    data-cursor="hover"
-                  >
-                    ИЗСЛЕДВАЙ
-                  </button>
-                </div>
-              ))}
-            </div>
-
-            {/* Right: Active apartment preview */}
-            <div style={{ position: 'sticky', top: '120px' }}>
-              <div
-                style={{
-                  position: 'relative',
-                  overflow: 'hidden',
-                  aspectRatio: '4/3',
-                }}
-                data-cursor="view"
-              >
-                {apartments.map((apt, i) => (
-                  <img
-                    key={apt.id}
-                    src={apt.image}
-                    alt={apt.name}
-                    style={{
-                      position: 'absolute',
-                      inset: 0,
-                      width: '100%',
-                      height: '100%',
-                      objectFit: 'cover',
-                      opacity: activeApt === i ? 1 : 0,
-                      transition: 'opacity 0.8s cubic-bezier(0.23,1,0.32,1)',
-                      transform: 'scale(1.02)',
-                    }}
-                  />
-                ))}
-
-                {/* Overlay info */}
-                <div style={{
-                  position: 'absolute',
-                  bottom: 0,
-                  left: 0,
-                  right: 0,
-                  background: 'linear-gradient(to top, rgba(10,10,10,0.9) 0%, transparent 100%)',
-                  padding: '2rem',
-                }}>
-                  <div style={{
-                    fontFamily: 'Cinzel, serif',
-                    fontSize: '0.6rem',
-                    letterSpacing: '0.3em',
-                    color: '#C5A059',
-                    marginBottom: '0.5rem',
-                  }}>
-                    {apartments[activeApt].number} / 07
-                  </div>
-                  <div style={{
-                    fontFamily: 'Tenor Sans, serif',
-                    fontSize: '1.3rem',
-                    color: '#EAEAEA',
-                    letterSpacing: '0.08em',
-                  }}>
-                    {apartments[activeApt].name}
-                  </div>
-                  <div style={{
-                    display: 'flex',
-                    gap: '1.5rem',
-                    marginTop: '0.8rem',
-                  }}>
-                    {[
-                      `${apartments[activeApt].sqm} м²`,
-                      `${apartments[activeApt].bedrooms} спалн${apartments[activeApt].bedrooms === 1 ? 'я' : 'и'}`,
-                      `от ${apartments[activeApt].pricePerNight} лв/нощ`,
-                    ].map(info => (
-                      <span key={info} style={{
-                        fontFamily: 'Satoshi, sans-serif',
-                        fontSize: '0.7rem',
-                        color: 'rgba(234,234,234,0.5)',
-                        letterSpacing: '0.1em',
-                        textTransform: 'uppercase',
-                      }}>
-                        {info}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              </div>
-
-              {/* Features */}
-              <div style={{
-                marginTop: '1.5rem',
-                display: 'flex',
-                flexWrap: 'wrap',
-                gap: '0.5rem',
-              }}>
-                {apartments[activeApt].features.slice(0, 3).map(feat => (
-                  <span key={feat} style={{
-                    fontFamily: 'Satoshi, sans-serif',
-                    fontSize: '0.65rem',
-                    color: 'rgba(234,234,234,0.4)',
-                    letterSpacing: '0.1em',
-                    textTransform: 'uppercase',
-                    border: '1px solid rgba(234,234,234,0.1)',
-                    padding: '0.3rem 0.8rem',
-                  }}>
-                    {feat}
-                  </span>
-                ))}
-              </div>
-            </div>
+            <img
+              className="parallax-img"
+              src={FIREPLACE_IMAGE}
+              alt="Plaza Interior"
+              style={{
+                width: '100%',
+                height: '120%',
+                objectFit: 'cover',
+                position: 'absolute',
+                top: 0,
+              }}
+            />
           </div>
         </div>
       </section>
 
       {/* ═══════════════════════════════════════════════════════
-          SECTION 4: CONCIERGE (Horizontal Scroll)
+          SECTION 3: COLLECTION (Horizontal Scroll)
       ═══════════════════════════════════════════════════════ */}
-      <section
-        id="concierge"
-        ref={hScrollRef}
-        style={{
-          background: '#111111',
-          overflow: 'hidden',
-          position: 'relative',
-        }}
-      >
-        <div style={{
-          padding: '6rem 4vw 3rem',
-          position: 'relative',
-          zIndex: 2,
+      <section ref={hScrollRef} id="collection" style={{ background: '#0A0A0A' }}>
+        <div ref={hScrollTrackRef} style={{
+          display: 'flex',
+          height: '100vh',
+          width: 'max-content',
+          alignItems: 'center',
+          padding: '0 10vw',
         }}>
-          <span style={{
-            fontFamily: 'Cinzel, serif',
-            fontSize: '0.6rem',
-            letterSpacing: '0.4em',
-            color: '#C5A059',
-            textTransform: 'uppercase',
-            display: 'block',
-            marginBottom: '1rem',
-          }}>
-            04 — КОНСИЕРЖ
-          </span>
-          <h2 style={{
+          {/* Section Intro Slide */}
+          <div style={{ width: '40vw', paddingRight: '10vw' }}>
+            <span style={{
+              fontFamily: 'Cinzel, serif',
+              fontSize: '0.6rem',
+              letterSpacing: '0.4em',
+              color: '#C5A059',
+              display: 'block',
+              marginBottom: '2rem',
+            }}>
+              КОЛЕКЦИЯ
+            </span>
+            <h2 style={{
+              fontFamily: 'Tenor Sans, serif',
+              fontSize: '4rem',
+              color: '#EAEAEA',
+              lineHeight: 1.1,
+              textTransform: 'uppercase',
+            }}>
+              ОТКРИЙТЕ <br /> ВАШИЯ <br /> ПРИЮТ
+            </h2>
+          </div>
+
+          {/* Apartment Slides */}
+          {apartments.map((apt, i) => (
+            <div
+              key={apt.id}
+              style={{
+                width: '75vw',
+                height: '70vh',
+                marginRight: '8vw',
+                display: 'flex',
+                gap: '4rem',
+              }}
+            >
+              <div style={{ flex: 1, position: 'relative', overflow: 'hidden' }}>
+                <img
+                  src={apt.images[0]}
+                  alt={apt.name}
+                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                />
+                <div style={{
+                  position: 'absolute',
+                  top: '2rem',
+                  right: '2rem',
+                  fontFamily: 'Cinzel, serif',
+                  fontSize: '3rem',
+                  color: 'rgba(234,234,234,0.1)',
+                }}>
+                  0{i + 1}
+                </div>
+              </div>
+              <div style={{ width: '300px', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                <h3 style={{
+                  fontFamily: 'Tenor Sans, serif',
+                  fontSize: '1.8rem',
+                  color: '#EAEAEA',
+                  marginBottom: '1.5rem',
+                  textTransform: 'uppercase',
+                }}>
+                  {apt.name}
+                </h3>
+                <p style={{
+                  fontFamily: 'Satoshi, sans-serif',
+                  fontSize: '0.9rem',
+                  color: 'rgba(234,234,234,0.4)',
+                  lineHeight: 1.6,
+                  marginBottom: '2rem',
+                }}>
+                  {apt.description}
+                </p>
+                <div style={{
+                  display: 'flex',
+                  gap: '1.5rem',
+                  marginBottom: '3rem',
+                }}>
+                  <div style={{ textAlign: 'center' }}>
+                    <div style={{ fontFamily: 'Cinzel, serif', color: '#C5A059', fontSize: '1.2rem' }}>{apt.size}</div>
+                    <div style={{ fontSize: '0.6rem', color: 'rgba(234,234,234,0.3)', letterSpacing: '0.1em' }}>КВ.М.</div>
+                  </div>
+                  <div style={{ textAlign: 'center' }}>
+                    <div style={{ fontFamily: 'Cinzel, serif', color: '#C5A059', fontSize: '1.2rem' }}>{apt.bedrooms}</div>
+                    <div style={{ fontSize: '0.6rem', color: 'rgba(234,234,234,0.3)', letterSpacing: '0.1em' }}>СПАЛНИ</div>
+                  </div>
+                </div>
+                <button
+                  onClick={() => navigate(`/apartment/${apt.id}`)}
+                  style={{
+                    alignSelf: 'flex-start',
+                    background: 'transparent',
+                    border: 'none',
+                    borderBottom: '1px solid #C5A059',
+                    color: '#EAEAEA',
+                    fontFamily: 'Cinzel, serif',
+                    fontSize: '0.65rem',
+                    letterSpacing: '0.2em',
+                    padding: '0.5rem 0',
+                    cursor: 'pointer',
+                  }}
+                  data-cursor="hover"
+                >
+                  ВИЖТЕ ПОВЕЧЕ
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* ═══════════════════════════════════════════════════════
+          SECTION 4: CONCIERGE (Experiences)
+      ═══════════════════════════════════════════════════════ */}
+      <section style={{ padding: '20vh 4vw', background: '#0A0A0A' }}>
+        <div style={{ textAlign: 'center', marginBottom: '10vh' }}>
+          <h2 className="scroll-reveal" style={{
             fontFamily: 'Tenor Sans, serif',
-            fontSize: 'clamp(1.8rem, 3.5vw, 3rem)',
-            color: '#EAEAEA',
-            letterSpacing: '0.05em',
-            fontWeight: 400,
-            margin: 0,
-            textAlign: 'center',
-            width: '100%',
+            fontSize: 'clamp(2rem, 4vw, 4.5rem)',
+            color: '#C5A059',
+            letterSpacing: '0.1em',
+            textTransform: 'uppercase',
           }}>
-            <span style={{ color: '#C5A059' }}>НАШИТЕ ПРЕДЛОЖЕНИЯ</span>
+            НАШИТЕ ПРЕДЛОЖЕНИЯ
           </h2>
+          <div className="gold-reveal-line" style={{
+            width: '120px',
+            height: '1px',
+            background: '#C5A059',
+            margin: '2rem auto',
+          }} />
         </div>
 
-        <div
-          ref={hScrollTrackRef}
-          style={{
-            display: 'flex',
-            gap: '2px',
-            paddingLeft: '4vw',
-            paddingBottom: '6rem',
-            paddingTop: '2rem',
-          }}
-        >
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
+          gap: '2px',
+          background: 'rgba(197,160,89,0.1)',
+          border: '1px solid rgba(197,160,89,0.1)',
+        }}>
           {conciergeServices.map((service) => (
             <div
               key={service.number}
+              className="service-card scroll-reveal"
               style={{
-                width: 'clamp(320px, 35vw, 480px)',
-                flexShrink: 0,
                 position: 'relative',
+                height: '500px',
                 overflow: 'hidden',
-                aspectRatio: '3/4',
+                background: '#0A0A0A',
               }}
-              data-cursor="view"
+              data-cursor="hover"
             >
               <img
                 src={service.image}
@@ -1022,243 +868,197 @@ export default function Home() {
                   width: '100%',
                   height: '100%',
                   objectFit: 'cover',
-                  transition: 'transform 0.8s cubic-bezier(0.23,1,0.32,1)',
-                  display: 'block',
+                  opacity: 0.4,
+                  transition: 'transform 1.2s ease, opacity 1.2s ease',
                 }}
-                onMouseEnter={(e) => {
-                  (e.currentTarget as HTMLImageElement).style.transform = 'scale(1.05)';
-                }}
-                onMouseLeave={(e) => {
-                  (e.currentTarget as HTMLImageElement).style.transform = 'scale(1)';
-                }}
+                className="service-img"
               />
               <div style={{
                 position: 'absolute',
                 inset: 0,
-                background: 'linear-gradient(to top, rgba(10,10,10,0.92) 0%, rgba(10,10,10,0.1) 60%)',
-              }} />
-              <div style={{
-                position: 'absolute',
-                bottom: 0,
-                left: 0,
-                right: 0,
-                padding: '2rem',
+                padding: '3rem',
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'flex-end',
+                background: 'linear-gradient(to top, rgba(10,10,10,0.9) 0%, transparent 100%)',
               }}>
-                <div style={{
+                <span style={{
                   fontFamily: 'Cinzel, serif',
-                  fontSize: '0.6rem',
-                  letterSpacing: '0.3em',
+                  fontSize: '0.7rem',
                   color: '#C5A059',
-                  marginBottom: '0.8rem',
+                  marginBottom: '1rem',
                 }}>
                   {service.number}
-                </div>
+                </span>
                 <h3 style={{
                   fontFamily: 'Tenor Sans, serif',
-                  fontSize: 'clamp(1rem, 1.8vw, 1.4rem)',
+                  fontSize: '1.5rem',
                   color: '#EAEAEA',
-                  letterSpacing: '0.08em',
-                  marginBottom: '0.8rem',
-                  fontWeight: 400,
+                  marginBottom: '1.2rem',
+                  letterSpacing: '0.1em',
                 }}>
                   {service.title}
                 </h3>
                 <p style={{
                   fontFamily: 'Satoshi, sans-serif',
-                  fontSize: '0.8rem',
-                  color: 'rgba(234,234,234,0.55)',
-                  lineHeight: 1.7,
-                  fontWeight: 300,
-                }}>
+                  fontSize: '0.85rem',
+                  color: 'rgba(234,234,234,0.5)',
+                  lineHeight: 1.6,
+                  transform: 'translateY(20px)',
+                  opacity: 0,
+                  transition: 'all 0.6s ease',
+                }} className="service-desc">
                   {service.desc}
                 </p>
               </div>
             </div>
           ))}
-
-          {/* End spacer */}
-          <div style={{ width: '4vw', flexShrink: 0 }} />
         </div>
       </section>
 
       {/* ═══════════════════════════════════════════════════════
           SECTION 5: BOOKING
       ═══════════════════════════════════════════════════════ */}
-      <section
-        id="booking"
-        style={{
-          background: '#0A0A0A',
-          padding: 'clamp(8rem, 12vw, 14rem) 0',
-          position: 'relative',
-          overflow: 'hidden',
-        }}
-      >
-        {/* Ghost text background */}
+      <section id="booking" style={{ position: 'relative', padding: '15vh 4vw', background: '#0A0A0A', overflow: 'hidden' }}>
+        {/* Decorative Background Text */}
         <div style={{
           position: 'absolute',
-          right: '-10vw',
-          top: '20%',
+          top: '50%',
+          left: '50%',
+          transform: 'translate(-50%, -50%)',
           fontFamily: 'Tenor Sans, serif',
-          fontSize: 'clamp(8rem, 20vw, 24rem)',
-          color: 'transparent',
-          WebkitTextStroke: '1px rgba(197,160,89,0.03)',
-          lineHeight: 1,
-          pointerEvents: 'none',
-          userSelect: 'none',
+          fontSize: '25vw',
+          color: 'rgba(234,234,234,0.02)',
           whiteSpace: 'nowrap',
           zIndex: 0,
+          pointerEvents: 'none',
+          letterSpacing: '0.1em',
         }}>
           PLAZA
         </div>
 
-        <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 4vw', position: 'relative', zIndex: 1 }}>
-          <div style={{ textAlign: 'center', marginBottom: '5rem' }}>
-            <div className="scroll-reveal">
-              <span style={{
-                fontFamily: 'Cinzel, serif',
-                fontSize: '0.65rem',
-                letterSpacing: '0.5em',
-                color: '#C5A059',
-                textTransform: 'uppercase',
-                display: 'block',
-                marginBottom: '1.5rem',
-              }}>
-                05 — РЕЗЕРВАЦИЯ
-              </span>
-            </div>
-            <div className="scroll-reveal">
-              <h2 style={{
-                fontFamily: 'Tenor Sans, serif',
-                fontSize: 'clamp(2.5rem, 5vw, 4.5rem)',
-                color: '#EAEAEA',
-                letterSpacing: '0.05em',
-                fontWeight: 400,
-                lineHeight: 1.1,
-                margin: 0,
-              }}>
-                ВАШАТА РЕЗЕРВАЦИЯ <span style={{ color: '#C5A059' }}>ТУК.</span>
-              </h2>
-            </div>
+        <div style={{ position: 'relative', zIndex: 1, maxWidth: '1200px', margin: '0 auto' }}>
+          <div style={{ textAlign: 'center', marginBottom: '8vh' }}>
+            <span style={{
+              fontFamily: 'Cinzel, serif',
+              fontSize: '0.6rem',
+              letterSpacing: '0.4em',
+              color: '#C5A059',
+              display: 'block',
+              marginBottom: '2rem',
+            }}>
+              КОНТАКТИ
+            </span>
+            <h2 style={{
+              fontFamily: 'Tenor Sans, serif',
+              fontSize: 'clamp(2rem, 4vw, 4rem)',
+              color: '#EAEAEA',
+              textTransform: 'uppercase',
+            }}>
+              ВАШАТА РЕЗЕРВАЦИЯ ТУК
+            </h2>
           </div>
 
-          <div className="scroll-reveal" style={{
+          <div style={{
             background: 'rgba(15, 15, 15, 0.4)',
-            backdropFilter: 'blur(20px)',
-            border: '1px solid rgba(197, 160, 89, 0.1)',
-            padding: 'clamp(2rem, 5vw, 4rem)',
-            borderRadius: '2px',
+            backdropFilter: 'blur(30px)',
+            border: '1px solid rgba(197, 160, 89, 0.15)',
+            padding: '4rem',
+            position: 'relative',
           }}>
             {formSent ? (
-              <div style={{
-                textAlign: 'center',
-                padding: '4rem 2rem',
-              }}>
-                <div style={{
-                  fontFamily: 'Cinzel, serif',
-                  fontSize: '3rem',
-                  color: '#C5A059',
-                  marginBottom: '1.5rem',
-                }}>
-                  ✓
-                </div>
-                <h3 style={{
-                  fontFamily: 'Tenor Sans, serif',
-                  fontSize: '2rem',
-                  color: '#EAEAEA',
-                  letterSpacing: '0.1em',
-                  marginBottom: '1rem',
-                  fontWeight: 400,
-                }}>
-                  БЛАГОДАРИМ ВИ
-                </h3>
-                <p style={{
-                  fontFamily: 'Satoshi, sans-serif',
-                  fontSize: '1rem',
-                  color: 'rgba(234,234,234,0.5)',
-                  letterSpacing: '0.05em',
-                }}>
-                  Вашата заявка беше изпратена успешно. Нашият консиерж ще се свърже с Вас скоро.
-                </p>
+              <div style={{ textAlign: 'center', padding: '4rem 0' }}>
+                <h3 style={{ fontFamily: 'Tenor Sans, serif', fontSize: '2rem', color: '#C5A059', marginBottom: '1.5rem' }}>БЛАГОДАРИМ ВИ!</h3>
+                <p style={{ fontFamily: 'Satoshi, sans-serif', color: 'rgba(234,234,234,0.5)' }}>Вашето запитване беше изпратено успешно. Ще се свържем с Вас съвсем скоро.</p>
+                <button 
+                  onClick={() => setFormSent(false)}
+                  style={{ marginTop: '2.5rem', background: 'transparent', border: '1px solid #C5A059', color: '#C5A059', padding: '1rem 2rem', fontFamily: 'Cinzel, serif', cursor: 'pointer' }}
+                >
+                  НОВО ЗАПИТВАНЕ
+                </button>
               </div>
             ) : (
-              <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '3.5rem' }}>
-                {/* Row 1: Basic Info */}
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '3rem' }}>
+              <form onSubmit={handleSubmit} style={{ display: 'grid', gap: '2.5rem' }}>
+                {/* Row 1: Name & Email */}
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2.5rem' }}>
                   <div className="booking-field">
-                    <label style={{ fontFamily: 'Cinzel, serif', fontSize: '0.55rem', letterSpacing: '0.3em', color: 'rgba(197,160,89,0.6)', display: 'block', marginBottom: '0.8rem' }}>ИМЕ И ФАМИЛИЯ</label>
+                    <label style={{ fontFamily: 'Cinzel, serif', fontSize: '0.55rem', letterSpacing: '0.3em', color: 'rgba(197,160,89,0.6)', display: 'block', marginBottom: '0.8rem' }}>ВАШЕТО ИМЕ</label>
                     <input
                       type="text"
+                      required
                       className="lux-input-v2"
                       value={formData.name}
                       onChange={e => setFormData(p => ({ ...p, name: e.target.value }))}
-                      required
                     />
                   </div>
                   <div className="booking-field">
                     <label style={{ fontFamily: 'Cinzel, serif', fontSize: '0.55rem', letterSpacing: '0.3em', color: 'rgba(197,160,89,0.6)', display: 'block', marginBottom: '0.8rem' }}>ИМЕЙЛ АДРЕС</label>
                     <input
                       type="email"
+                      required
                       className="lux-input-v2"
                       value={formData.email}
                       onChange={e => setFormData(p => ({ ...p, email: e.target.value }))}
-                      required
                     />
                   </div>
                 </div>
 
-                {/* Row 2: Dates and Apartment */}
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '3rem' }}>
+                {/* Row 2: Apartment & Dates */}
+                <div style={{ display: 'grid', gridTemplateColumns: '1.5fr 1fr 1fr', gap: '2.5rem' }}>
                   <div className="booking-field">
-                    <label style={{ fontFamily: 'Cinzel, serif', fontSize: '0.55rem', letterSpacing: '0.3em', color: 'rgba(197,160,89,0.6)', display: 'block', marginBottom: '0.8rem' }}>ПЕРИОД НА ПРЕСТОЙ</label>
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                      <Popover>
-                        <PopoverTrigger asChild>
-                          <button type="button" className="lux-date-trigger">
-                            <CalendarIcon size={14} style={{ color: '#C5A059' }} />
-                            <span>{formData.arrivalDate ? format(formData.arrivalDate, 'dd.MM.yyyy') : 'ПРИСТИГАНЕ'}</span>
-                          </button>
-                        </PopoverTrigger>
-                        <PopoverContent className="bg-[#111] border-rgba(197,160,89,0.2) p-0" align="start">
-                          <Calendar
-                            mode="single"
-                            selected={formData.arrivalDate}
-                            onSelect={date => setFormData(p => ({ ...p, arrivalDate: date }))}
-                            initialFocus
-                          />
-                        </PopoverContent>
-                      </Popover>
-                      <Popover>
-                        <PopoverTrigger asChild>
-                          <button type="button" className="lux-date-trigger">
-                            <CalendarIcon size={14} style={{ color: '#C5A059' }} />
-                            <span>{formData.departureDate ? format(formData.departureDate, 'dd.MM.yyyy') : 'ЗАМИНАВАНЕ'}</span>
-                          </button>
-                        </PopoverTrigger>
-                        <PopoverContent className="bg-[#111] border-rgba(197,160,89,0.2) p-0" align="start">
-                          <Calendar
-                            mode="single"
-                            selected={formData.departureDate}
-                            onSelect={date => setFormData(p => ({ ...p, departureDate: date }))}
-                            initialFocus
-                          />
-                        </PopoverContent>
-                      </Popover>
-                    </div>
-                  </div>
-                  <div className="booking-field">
-                    <label style={{ fontFamily: 'Cinzel, serif', fontSize: '0.55rem', letterSpacing: '0.3em', color: 'rgba(197,160,89,0.6)', display: 'block', marginBottom: '0.8rem' }}>ИЗБОР НА АПАРТАМЕНТ</label>
-                    <Select onValueChange={val => setFormData(p => ({ ...p, apartmentId: val }))}>
+                    <label style={{ fontFamily: 'Cinzel, serif', fontSize: '0.55rem', letterSpacing: '0.3em', color: 'rgba(197,160,89,0.6)', display: 'block', marginBottom: '0.8rem' }}>ИЗБЕРЕТЕ АПАРТАМЕНТ</label>
+                    <Select onValueChange={(val) => setFormData(p => ({ ...p, apartmentId: val }))}>
                       <SelectTrigger className="lux-select-trigger">
-                        <SelectValue placeholder="ИЗБЕРЕТЕ АПАРТАМЕНТ" />
+                        <SelectValue placeholder="ИЗБЕРЕТЕ..." />
                       </SelectTrigger>
-                      <SelectContent className="bg-[#111] border-rgba(197,160,89,0.2)">
+                      <SelectContent className="lux-select-content">
                         {apartments.map(apt => (
-                          <SelectItem key={apt.id} value={apt.id.toString()} className="text-[#EAEAEA] hover:bg-[#C5A059]/10 focus:bg-[#C5A059]/20">
-                            {apt.number} — {apt.name}
+                          <SelectItem key={apt.id} value={apt.id.toString()} className="lux-select-item">
+                            {apt.name}
                           </SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
+                  </div>
+
+                  <div className="booking-field">
+                    <label style={{ fontFamily: 'Cinzel, serif', fontSize: '0.55rem', letterSpacing: '0.3em', color: 'rgba(197,160,89,0.6)', display: 'block', marginBottom: '0.8rem' }}>ПРИСТИГАНЕ</label>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <button className="lux-date-trigger">
+                          {formData.arrivalDate ? format(formData.arrivalDate, 'dd/MM/yyyy') : 'ИЗБЕРЕТЕ ДАТА'}
+                          <CalendarIcon size={14} style={{ opacity: 0.4 }} />
+                        </button>
+                      </PopoverTrigger>
+                      <PopoverContent className="lux-popover-content">
+                        <Calendar
+                          mode="single"
+                          selected={formData.arrivalDate}
+                          onSelect={(date) => setFormData(p => ({ ...p, arrivalDate: date }))}
+                          initialFocus
+                        />
+                      </PopoverContent>
+                    </Popover>
+                  </div>
+
+                  <div className="booking-field">
+                    <label style={{ fontFamily: 'Cinzel, serif', fontSize: '0.55rem', letterSpacing: '0.3em', color: 'rgba(197,160,89,0.6)', display: 'block', marginBottom: '0.8rem' }}>ЗАМИНАВАНЕ</label>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <button className="lux-date-trigger">
+                          {formData.departureDate ? format(formData.departureDate, 'dd/MM/yyyy') : 'ИЗБЕРЕТЕ ДАТА'}
+                          <CalendarIcon size={14} style={{ opacity: 0.4 }} />
+                        </button>
+                      </PopoverTrigger>
+                      <PopoverContent className="lux-popover-content">
+                        <Calendar
+                          mode="single"
+                          selected={formData.departureDate}
+                          onSelect={(date) => setFormData(p => ({ ...p, departureDate: date }))}
+                          initialFocus
+                        />
+                      </PopoverContent>
+                    </Popover>
                   </div>
                 </div>
 
@@ -1305,7 +1105,7 @@ export default function Home() {
                     className="premium-submit-btn"
                     data-cursor="hover"
                   >
-                    <span>ИЗПРАТИ ЗАПИТВАНЕ ЗА РЕЗЕРВАЦИЯ</span>
+                    <span>ИЗПРАТИ ЗАПИТВАНЕ</span>
                   </button>
                 </div>
               </form>
@@ -1314,182 +1114,15 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ═══════════════════════════════════════════════════════
-          FOOTER
-      ═══════════════════════════════════════════════════════ */}
-      <footer style={{
-        background: '#060606',
-        borderTop: '1px solid rgba(197,160,89,0.1)',
-        padding: '4rem 4vw',
-      }}>
-        <div style={{
-          maxWidth: '1440px',
-          margin: '0 auto',
-          display: 'grid',
-          gridTemplateColumns: '1fr 1fr 1fr',
-          gap: '3rem',
-          alignItems: 'start',
-        }}>
-          {/* Logo */}
-          <div>
-            <div style={{ marginBottom: '1.5rem' }}>
-              <span style={{
-                fontFamily: 'Cinzel, serif',
-                fontSize: '0.6rem',
-                letterSpacing: '0.5em',
-                color: '#C5A059',
-                display: 'block',
-              }}>PLAZA</span>
-              <span style={{
-                fontFamily: 'Tenor Sans, serif',
-                fontSize: '1.2rem',
-                letterSpacing: '0.3em',
-                color: '#EAEAEA',
-                display: 'block',
-              }}>APARTMENTS</span>
-              <span style={{
-                fontFamily: 'Cinzel, serif',
-                fontSize: '0.55rem',
-                letterSpacing: '0.5em',
-                color: 'rgba(234,234,234,0.3)',
-                display: 'block',
-              }}>PAMPOROVO</span>
-            </div>
-            <p style={{
-              fontFamily: 'Satoshi, sans-serif',
-              fontSize: '0.75rem',
-              color: 'rgba(234,234,234,0.3)',
-              lineHeight: 1.7,
-              fontWeight: 300,
-              maxWidth: '260px',
-            }}>
-              Седем изключителни апартамента в сърцето на Пампорово. Премиум планинско бягство.
-            </p>
-          </div>
-
-          {/* Navigation */}
-          <div>
-            <div style={{
-              fontFamily: 'Cinzel, serif',
-              fontSize: '0.6rem',
-              letterSpacing: '0.3em',
-              color: '#C5A059',
-              marginBottom: '1.5rem',
-              textTransform: 'uppercase',
-            }}>
-              НАВИГАЦИЯ
-            </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem' }}>
-              {['Колекцията', 'Философия', 'Консиерж', 'Резервация'].map(link => (
-                <button
-                  key={link}
-                  onClick={() => {
-                    const el = document.querySelector(`#${link.toLowerCase().replace('я', 'ia').replace('ц', 'ts')}`);
-                    if (el) el.scrollIntoView({ behavior: 'smooth' });
-                  }}
-                  style={{
-                    background: 'none',
-                    border: 'none',
-                    textAlign: 'left',
-                    fontFamily: 'Satoshi, sans-serif',
-                    fontSize: '0.8rem',
-                    color: 'rgba(234,234,234,0.35)',
-                    letterSpacing: '0.1em',
-                    cursor: 'none',
-                    padding: 0,
-                    transition: 'color 0.3s ease',
-                  }}
-                  data-cursor="hover"
-                >
-                  {link}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Contact */}
-          <div>
-            <div style={{
-              fontFamily: 'Cinzel, serif',
-              fontSize: '0.6rem',
-              letterSpacing: '0.3em',
-              color: '#C5A059',
-              marginBottom: '1.5rem',
-              textTransform: 'uppercase',
-            }}>
-              КОНТАКТ
-            </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem' }}>
-              {[
-                '+359 888 000 000',
-                'info@plaza-pamporovo.bg',
-                'Пампорово, Родопи',
-                'България',
-              ].map(info => (
-                <span key={info} style={{
-                  fontFamily: 'Satoshi, sans-serif',
-                  fontSize: '0.8rem',
-                  color: 'rgba(234,234,234,0.35)',
-                  letterSpacing: '0.05em',
-                }}>
-                  {info}
-                </span>
-              ))}
-            </div>
-          </div>
+      {/* Footer */}
+      <footer style={{ padding: '8vh 4vw', borderTop: '1px solid rgba(234,234,234,0.05)', textAlign: 'center' }}>
+        <div style={{ fontFamily: 'Tenor Sans, serif', fontSize: '1.5rem', color: '#EAEAEA', marginBottom: '2rem', letterSpacing: '0.2em' }}>
+          PLAZA PAMPOROVO
         </div>
-
-        {/* Bottom bar */}
-        <div style={{
-          maxWidth: '1440px',
-          margin: '3rem auto 0',
-          paddingTop: '2rem',
-          borderTop: '1px solid rgba(234,234,234,0.05)',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-        }}>
-          <span style={{
-            fontFamily: 'Satoshi, sans-serif',
-            fontSize: '0.65rem',
-            color: 'rgba(234,234,234,0.2)',
-            letterSpacing: '0.1em',
-          }}>
-            © 2025 Mountain Ultra-Lux Pamporovo. Всички права запазени.
-          </span>
-          <span style={{
-            fontFamily: 'Cinzel, serif',
-            fontSize: '0.6rem',
-            color: 'rgba(197,160,89,0.3)',
-            letterSpacing: '0.2em',
-          }}>
-            01 — 07
-          </span>
+        <div style={{ fontFamily: 'Satoshi, sans-serif', fontSize: '0.7rem', color: 'rgba(234,234,234,0.3)', letterSpacing: '0.1em' }}>
+          © 2024 ВСИЧКИ ПРАВА ЗАПАЗЕНИ. ДИЗАЙН И КОНЦЕПЦИЯ ОТ PLAZA GROUP.
         </div>
       </footer>
-
-      {/* Global animations */}
-      <style>{`
-        @keyframes fadeInUp {
-          from { opacity: 0; transform: translateY(20px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-        @keyframes scrollLine {
-          0% { transform: scaleY(0); transform-origin: top; }
-          50% { transform: scaleY(1); transform-origin: top; }
-          51% { transform: scaleY(1); transform-origin: bottom; }
-          100% { transform: scaleY(0); transform-origin: bottom; }
-        }
-        
-        @media (max-width: 768px) {
-          section > div[style*="grid-template-columns: 1fr 1fr"] {
-            grid-template-columns: 1fr !important;
-          }
-          section > div[style*="grid-template-columns: 1fr 1fr 1fr"] {
-            grid-template-columns: 1fr !important;
-          }
-        }
-      `}</style>
     </div>
   );
 }

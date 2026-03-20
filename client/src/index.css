@@ -421,3 +421,37 @@
   background-color: rgba(197, 160, 89, 0.1) !important;
   color: var(--gold) !important;
 }
+
+/* Hero Right Panel Animations */
+@keyframes fadeInRight {
+  from {
+    opacity: 0;
+    transform: translateX(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.nav-btn-hover:hover {
+  background: rgba(197, 160, 89, 0.1) !important;
+  border-color: rgba(197, 160, 89, 0.4) !important;
+}
+
+.hero-cta-btn:hover {
+  background: #EAEAEA !important;
+  color: #0A0A0A !important;
+  letter-spacing: 0.4em !important;
+}
+
+.hero-right-panel {
+  z-index: 20;
+}
+
+@media (max-width: 1024px) {
+  .hero-right-panel {
+    flex: 1 1 100%;
+    margin-top: 2rem;
+  }
+}
