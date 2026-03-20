@@ -53,7 +53,6 @@ export default function Home() {
   const [totalPrice, setTotalPrice] = useState<number | null>(null);
   const [nights, setNights] = useState<number | null>(null);
 
-  // Refs for GSAP
   const heroRef = useRef<HTMLDivElement>(null);
   const heroBgRef = useRef<HTMLDivElement>(null);
   const heroTitleRef = useRef<HTMLDivElement>(null);
@@ -69,11 +68,7 @@ export default function Home() {
         if (apt) {
           setNights(days);
           setTotalPrice(days * apt.pricePerNight);
-          
-          gsap.fromTo('.price-summary-reveal',
-            { opacity: 0, y: 20 },
-            { opacity: 1, y: 0, duration: 0.8, ease: 'power3.out' }
-          );
+          gsap.fromTo('.price-summary-reveal', { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.8, ease: 'power3.out' });
         }
       } else {
         setNights(null);
@@ -112,7 +107,7 @@ export default function Home() {
         gsap.to(img, { yPercent: -15, ease: 'none', scrollTrigger: { trigger: img.parentElement, start: 'top bottom', end: 'bottom top', scrub: true } });
       });
 
-      // COLLECTION: Pinned Horizontal Scroll
+      // CONCIERGE: Pinned Horizontal Scroll
       if (hScrollRef.current && hScrollTrackRef.current) {
         const track = hScrollTrackRef.current;
         const totalWidth = track.scrollWidth - hScrollRef.current.offsetWidth;
@@ -133,12 +128,6 @@ export default function Home() {
       // Gold line reveal
       gsap.utils.toArray<HTMLElement>('.gold-reveal-line').forEach((line) => {
         gsap.fromTo(line, { scaleX: 0, transformOrigin: 'left' }, { scaleX: 1, duration: 1.2, ease: 'power3.out', scrollTrigger: { trigger: line, start: 'top 90%' } });
-      });
-
-      // Booking form reveal
-      gsap.fromTo('.booking-field', { y: 30, opacity: 0 }, {
-        y: 0, opacity: 1, duration: 1, stagger: 0.1, ease: 'power3.out',
-        scrollTrigger: { trigger: '#booking', start: 'top 60%' }
       });
     });
 
@@ -234,22 +223,26 @@ export default function Home() {
         </div>
       </section>
 
-      {/* COLLECTION SECTION (Horizontal Scroll) */}
-      <section ref={hScrollRef} id="collection" style={{ background: '#0A0A0A', position: 'relative' }}>
-        <div ref={hScrollTrackRef} style={{ display: 'flex', height: '100vh', width: 'max-content', alignItems: 'center', padding: '0 10vw' }}>
-          <div style={{ width: '40vw', paddingRight: '10vw' }}>
-            <span className="section-label">КОЛЕКЦИЯ</span>
-            <h2 style={{ fontFamily: 'Tenor Sans, serif', fontSize: '4.5rem', color: '#EAEAEA', lineHeight: 1.1 }}>ОТКРИЙТЕ <br /> ВАШИЯ <br /> ПРИЮТ</h2>
-          </div>
+      {/* COLLECTION SECTION (Vertical List) */}
+      <section id="collection" style={{ padding: '15vh 4vw', background: '#0A0A0A' }}>
+        <div style={{ marginBottom: '10vh' }}>
+          <span className="section-label">КОЛЕКЦИЯ</span>
+          <h2 style={{ fontFamily: 'Tenor Sans, serif', fontSize: 'clamp(2rem, 4vw, 4rem)', color: '#EAEAEA', textTransform: 'uppercase', marginTop: '1.5rem' }}>ОТКРИЙТЕ ВАШИЯ ПРИЮТ</h2>
+        </div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '8vh' }}>
           {apartments.map((apt, i) => (
-            <div key={apt.id} style={{ width: '75vw', height: '70vh', marginRight: '8vw', display: 'flex', gap: '4rem' }}>
-              <div style={{ flex: 1, position: 'relative', overflow: 'hidden' }}>
+            <div key={apt.id} className="scroll-reveal" style={{ display: 'grid', gridTemplateColumns: 'repeat(12, 1fr)', gap: '4rem', alignItems: 'center' }}>
+              <div style={{ gridColumn: i % 2 === 0 ? '1 / 8' : '5 / 13', order: i % 2 === 0 ? 1 : 2, position: 'relative', height: '60vh', overflow: 'hidden' }}>
                 <img src={apt.images[0]} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                 <div style={{ position: 'absolute', top: '2rem', right: '2rem', fontFamily: 'Cinzel, serif', fontSize: '4rem', color: 'rgba(234,234,234,0.1)' }}>0{i + 1}</div>
               </div>
-              <div style={{ width: '300px', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+              <div style={{ gridColumn: i % 2 === 0 ? '9 / 13' : '1 / 5', order: i % 2 === 0 ? 2 : 1, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
                 <h3 style={{ fontFamily: 'Tenor Sans, serif', fontSize: '2.2rem', color: '#EAEAEA', textTransform: 'uppercase', marginBottom: '1.5rem' }}>{apt.name}</h3>
                 <p style={{ color: 'rgba(234,234,234,0.4)', marginBottom: '2.5rem', lineHeight: 1.6 }}>{apt.description}</p>
+                <div style={{ display: 'flex', gap: '2rem', marginBottom: '3rem' }}>
+                  <div><div style={{ color: '#C5A059', fontSize: '1.2rem' }}>{apt.size}</div><div style={{ fontSize: '0.6rem', color: 'rgba(234,234,234,0.3)' }}>КВ.М.</div></div>
+                  <div><div style={{ color: '#C5A059', fontSize: '1.2rem' }}>{apt.bedrooms}</div><div style={{ fontSize: '0.6rem', color: 'rgba(234,234,234,0.3)' }}>СПАЛНИ</div></div>
+                </div>
                 <button onClick={() => navigate(`/apartment/${apt.id}`)} style={{ background: 'transparent', border: 'none', borderBottom: '1px solid #C5A059', color: '#EAEAEA', fontFamily: 'Cinzel, serif', padding: '0.5rem 0', alignSelf: 'flex-start' }}>ВИЖТЕ ПОВЕЧЕ</button>
               </div>
             </div>
@@ -257,20 +250,20 @@ export default function Home() {
         </div>
       </section>
 
-      {/* CONCIERGE SECTION (Grid/Carousel style) */}
-      <section style={{ padding: '20vh 4vw', background: '#0A0A0A' }}>
-        <div style={{ textAlign: 'center', marginBottom: '12vh' }}>
-          <h2 className="scroll-reveal" style={{ fontFamily: 'Tenor Sans, serif', fontSize: '4rem', color: '#C5A059', letterSpacing: '0.1em' }}>НАШИТЕ ПРЕДЛОЖЕНИЯ</h2>
-          <div className="gold-reveal-line" style={{ width: '120px', height: '1px', background: '#C5A059', margin: '2.5rem auto' }} />
-        </div>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(350px, 1fr))', gap: '2px', background: 'rgba(197,160,89,0.1)' }}>
+      {/* CONCIERGE SECTION (Pinned Horizontal Scroll) */}
+      <section ref={hScrollRef} style={{ background: '#0A0A0A', position: 'relative' }}>
+        <div ref={hScrollTrackRef} style={{ display: 'flex', height: '100vh', width: 'max-content', alignItems: 'center', padding: '0 10vw' }}>
+          <div style={{ width: '40vw', paddingRight: '10vw' }}>
+            <span className="section-label">ПРЕДЛОЖЕНИЯ</span>
+            <h2 style={{ fontFamily: 'Tenor Sans, serif', fontSize: '4.5rem', color: '#C5A059', lineHeight: 1.1, textTransform: 'uppercase' }}>НАШИТЕ <br /> ПРЕДЛОЖЕНИЯ</h2>
+          </div>
           {conciergeServices.map((service) => (
-            <div key={service.number} className="service-card scroll-reveal" style={{ position: 'relative', height: '550px', overflow: 'hidden', background: '#0A0A0A' }}>
-              <img src={service.image} className="service-img" style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: 0.4, transition: 'all 1.2s ease' }} />
-              <div style={{ position: 'absolute', inset: 0, padding: '3.5rem', display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', background: 'linear-gradient(to top, rgba(10,10,10,0.9) 0%, transparent 100%)' }}>
+            <div key={service.number} style={{ width: '450px', height: '65vh', marginRight: '4vw', position: 'relative', overflow: 'hidden', background: '#0A0A0A' }}>
+              <img src={service.image} style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: 0.4 }} />
+              <div style={{ position: 'absolute', inset: 0, padding: '3rem', display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', background: 'linear-gradient(to top, rgba(10,10,10,0.9) 0%, transparent 100%)' }}>
                 <span style={{ fontFamily: 'Cinzel, serif', color: '#C5A059', marginBottom: '1rem' }}>{service.number}</span>
                 <h3 style={{ fontFamily: 'Tenor Sans, serif', fontSize: '1.8rem', color: '#EAEAEA', marginBottom: '1.2rem' }}>{service.title}</h3>
-                <p className="service-desc" style={{ color: 'rgba(234,234,234,0.5)', lineHeight: 1.6 }}>{service.desc}</p>
+                <p style={{ color: 'rgba(234,234,234,0.5)', lineHeight: 1.6 }}>{service.desc}</p>
               </div>
             </div>
           ))}
