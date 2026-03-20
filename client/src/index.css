@@ -458,15 +458,16 @@
 
 /* Concierge Section & Card Hover Effects */
 .concierge-section {
-  pointer-events: none; /* Disable scroll interception by default */
+  pointer-events: none;
 }
 
-.concierge-section:hover {
-  pointer-events: auto; /* Enable scroll interception only on hover */
+.concierge-section > div {
+  pointer-events: auto;
 }
 
 .concierge-card {
   transition: all 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+  border: 1px solid rgba(197, 160, 89, 0.05);
 }
 
 .concierge-card:hover .concierge-img {
@@ -479,6 +480,20 @@
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
 }
 
+.concierge-card:hover .learn-more {
+  opacity: 1 !important;
+  transform: translateX(0) !important;
+}
+
 .concierge-img {
   transition: all 0.8s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+/* Dialog Styling */
+[data-radix-popper-content-wrapper] {
+  z-index: 100 !important;
+}
+
+.bg-gold\/10:hover {
+  background-color: rgba(197, 160, 89, 0.1);
 }

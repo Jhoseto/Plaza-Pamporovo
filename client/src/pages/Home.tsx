@@ -10,7 +10,7 @@ import { useLocation } from 'wouter';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { format, differenceInDays } from 'date-fns';
-import { Calendar as CalendarIcon, MapPin, Snowflake, Thermometer } from 'lucide-react';
+import { Calendar as CalendarIcon, MapPin, Snowflake, Thermometer, Wind, X, ChevronRight } from 'lucide-react';
 import Navigation from '@/components/Navigation';
 import CustomCursor from '@/components/CustomCursor';
 import { apartments } from '@/lib/apartments';
@@ -27,6 +27,13 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from '@/components/ui/dialog';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -52,6 +59,8 @@ export default function Home() {
   const [formSent, setFormSent] = useState(false);
   const [totalPrice, setTotalPrice] = useState<number | null>(null);
   const [nights, setNights] = useState<number | null>(null);
+  const [weather, setWeather] = useState({ temp: -6, snow: 85, wind: 4 });
+  const [selectedService, setSelectedService] = useState<any>(null);
 
   const heroRef = useRef<HTMLDivElement>(null);
   const heroBgRef = useRef<HTMLDivElement>(null);
@@ -59,7 +68,29 @@ export default function Home() {
   const collectionRef = useRef<HTMLDivElement>(null);
   const hScrollRef = useRef<HTMLDivElement>(null);
   const hScrollTrackRef = useRef<HTMLDivElement>(null);
-  const [isHoveringConcierge, setIsHoveringConcierge] = useState(false);
+  const progressBarRef = useRef<HTMLDivElement>(null);
+
+  // Fetch Real Weather Data
+  useEffect(() => {
+    const fetchWeather = async () => {
+      try {
+        const response = await fetch('https://api.open-meteo.com/v1/forecast?latitude=41.65&longitude=24.70&current=temperature_2m,wind_speed_10m&timezone=auto');
+        const data = await response.json();
+        if (data.current) {
+          setWeather({
+            temp: Math.round(data.current.temperature_2m),
+            snow: 85, // Snow cover usually requires specific ski APIs or manual updates
+            wind: Math.round(data.current.wind_speed_10m)
+          });
+        }
+      } catch (error) {
+        console.error("Weather fetch failed:", error);
+      }
+    };
+    fetchWeather();
+    const interval = setInterval(fetchWeather, 600000); // Update every 10 mins
+    return () => clearInterval(interval);
+  }, []);
 
   // Calculate total price
   useEffect(() => {
@@ -114,9 +145,7 @@ export default function Home() {
         const track = hScrollTrackRef.current;
         const totalWidth = track.scrollWidth - hScrollRef.current.offsetWidth;
         
-        gsap.to(track, {
-          x: -totalWidth,
-          ease: 'none',
+        const tl = gsap.timeline({
           scrollTrigger: {
             trigger: hScrollRef.current,
             start: 'top top',
@@ -126,6 +155,12 @@ export default function Home() {
             anticipatePin: 1,
           },
         });
+
+        tl.to(track, { x: -totalWidth, ease: 'none' });
+        
+        if (progressBarRef.current) {
+          tl.to(progressBarRef.current, { scaleX: 1, ease: 'none' }, 0);
+        }
       }
 
       // Gold line animation
@@ -160,14 +195,14 @@ export default function Home() {
   };
 
   const conciergeServices = [
-    { number: '01', title: 'РЕСТОРАНТ', desc: 'Изискана кухня и уютна атмосфера. Насладете се на традиционни родопски ястия и модерна гастрономия.', image: CHEF_IMAGE },
-    { number: '02', title: 'СПА ЦЕНТЪР', desc: 'Пълноценен релакс и възстановяване. Басейн, сауна и парни бани за вашето здраве и тонус.', image: SPA_IMAGE },
-    { number: '03', title: 'СКИ ГАРДЕРОБ', desc: 'Модерно оборудване и сигурност за вашата екипировка. Комфорт само на крачки от пистите.', image: 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663458413005/uhXRuwuHobPnKCev.jpg' },
-    { number: '04', title: 'ЗИМНИ ПРИКЛЮЧЕНИЯ', desc: 'Нощно каране на писта "Снежанка 2", преходи с моторни шейни до връх Мургавец и панорамен тур с ратрак.', image: 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663458413005/SuvwgckREWHBVDuC.jpg' },
-    { number: '05', title: 'ВЕЛОПАРК ПАМПОРОВО', desc: 'Най-големият велопарк на Балканите с над 35 км трасета за планинско колоездене от всяко ниво.', image: 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663458413005/hVSJWZloYUlFmSFD.jpg' },
-    { number: '06', title: 'ПРИКЛЮЧЕНСКИ ПАРК "ЯЗОВИРА"', desc: 'Алпийски тролей, въжена градина, спортен риболов и зони за релакс сред чистия боров въздух.', image: 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663458413005/DPwHoRbKyayssQHA.jpg' },
-    { number: '07', title: 'КУЛТУРА И ПРИРОДА', desc: 'Посещение на обсерватория Рожен, пещерите Дяволското гърло и Ягодинска, и панорамни преходи.', image: BEDROOM_IMAGE },
-    { number: '08', title: 'РЕЛАКС И УЕЛНЕС', desc: 'Външно джакузи с гледка към гората, йога сесии на открито и възстановяващи процедури.', image: FIREPLACE_IMAGE },
+    { number: '01', title: 'РЕСТОРАНТ', desc: 'Изискана кухня и уютна атмосфера. Насладете се на традиционни родопски ястия и модерна гастрономия.', longDesc: 'Нашият ресторант предлага селекция от най-добрите местни продукти, превърнати в кулинарни шедьоври. От автентичен пататник до модерна европейска кухня, всяко ястие е придружено от богата винена листа.', image: CHEF_IMAGE },
+    { number: '02', title: 'СПА ЦЕНТЪР', desc: 'Пълноценен релакс и възстановяване. Басейн, сауна и парни бани за вашето здраве и тонус.', longDesc: 'Отпуснете се в нашия модерен СПА център. Предлагаме широка гама от масажи, терапии за лице и тяло, както и термална зона, проектирана за максимално спокойствие след дълъг ден на пистите.', image: SPA_IMAGE },
+    { number: '03', title: 'СКИ ГАРДЕРОБ', desc: 'Модерно оборудване и сигурност за вашата екипировка. Комфорт само на крачки от пистите.', longDesc: 'Нашият ски гардероб е оборудван с най-модерните системи за сушене и съхранение. Предлагаме и професионално обслужване на Вашата екипировка, както и наем на висок клас ски и сноуборд.', image: 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663458413005/uhXRuwuHobPnKCev.jpg' },
+    { number: '04', title: 'ЗИМНИ ПРИКЛЮЧЕНИЯ', desc: 'Нощно каране на писта "Снежанка 2", преходи с моторни шейни до връх Мургавец и панорамен тур с ратрак.', longDesc: 'Пампорово оживява през нощта. Организираме ексклузивни преходи с моторни шейни под звездите и уникални панорамни турове, които ще Ви покажат Родопите в нова светлина.', image: 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663458413005/SuvwgckREWHBVDuC.jpg' },
+    { number: '05', title: 'ВЕЛОПАРК ПАМПОРОВО', desc: 'Най-големият велопарк на Балканите с над 35 км трасета за планинско колоездене от всяко ниво.', longDesc: 'През лятото Пампорово се превръща в мека за планинското колоездене. Велопаркът предлага трасета за спускане, ендуро и семейни маршрути, обслужвани от модерни лифтови съоръжения.', image: 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663458413005/hVSJWZloYUlFmSFD.jpg' },
+    { number: '06', title: 'ПРИКЛЮЧЕНСКИ ПАРК "ЯЗОВИРА"', desc: 'Алпийски тролей, въжена градина, спортен риболов и зони за релакс сред чистия боров въздух.', longDesc: 'Идеалното място за семейно забавление. Паркът предлага вълнуващи преживявания като алпийски тролей над язовира, въжени препятствия и уютни кътчета за пикник и почивка.', image: 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663458413005/DPwHoRbKyayssQHA.jpg' },
+    { number: '07', title: 'КУЛТУРА И ПРИРОДА', desc: 'Посещение на обсерватория Рожен, пещерите Дяволското гърло и Ягодинска, и панорамни преходи.', longDesc: 'Открийте мистиката на Родопите. Организираме посещения до най-значимите културни и природни забележителности в региона, придружени от професионални планински водачи.', image: BEDROOM_IMAGE },
+    { number: '08', title: 'РЕЛАКС И УЕЛНЕС', desc: 'Външно джакузи с гледка към гората, йога сесии на открито и възстановяващи процедури.', longDesc: 'Потопете се в хармонията на природата. Нашите йога сесии на открито и външното джакузи с панорамна гледка ще Ви помогнат да преоткриете вътрешния си баланс.', image: FIREPLACE_IMAGE },
   ];
 
   return (
@@ -197,17 +232,18 @@ export default function Home() {
           <div className="hero-right-panel" style={{ flex: '0 1 380px', display: 'flex', flexDirection: 'column', gap: '1.5rem', opacity: 0, animation: 'fadeInRight 1.2s ease 0.8s forwards' }}>
             <div style={{ background: 'rgba(15, 15, 15, 0.4)', backdropFilter: 'blur(20px)', border: '1px solid rgba(197, 160, 89, 0.15)', padding: '1.5rem' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1.2rem' }}>
-                <span style={{ fontFamily: 'Cinzel, serif', fontSize: '0.55rem', color: '#C5A059' }}>УСЛОВИЯ В ПАМПОРОВО</span>
+                <span style={{ fontFamily: 'Cinzel, serif', fontSize: '0.55rem', color: '#C5A059' }}>УСЛОВИЯ В ПАМПОРОВО (LIVE)</span>
               </div>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}><Thermometer size={16} color="#C5A059" /><div><div style={{ color: '#EAEAEA' }}>-2°C</div></div></div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}><Snowflake size={16} color="#C5A059" /><div><div style={{ color: '#EAEAEA' }}>85 cm</div></div></div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1rem' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}><Thermometer size={14} color="#C5A059" /><div><div style={{ color: '#EAEAEA', fontSize: '0.9rem' }}>{weather.temp}°C</div></div></div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}><Snowflake size={14} color="#C5A059" /><div><div style={{ color: '#EAEAEA', fontSize: '0.9rem' }}>{weather.snow} cm</div></div></div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}><Wind size={14} color="#C5A059" /><div><div style={{ color: '#EAEAEA', fontSize: '0.9rem' }}>{weather.wind} km/h</div></div></div>
               </div>
             </div>
-            <a href="https://www.google.com/maps/dir/?api=1&destination=41.643798,24.690415" target="_blank" rel="noopener noreferrer" style={{ display: 'flex', alignItems: 'center', gap: '1rem', background: 'rgba(197, 160, 89, 0.05)', border: '1px solid rgba(197, 160, 89, 0.2)', padding: '1.2rem', textDecoration: 'none', color: '#EAEAEA' }}>
+            <a href="https://www.google.com/maps/dir/?api=1&destination=41.643798,24.690415" target="_blank" rel="noopener noreferrer" style={{ display: 'flex', alignItems: 'center', gap: '1rem', background: 'rgba(197, 160, 89, 0.05)', border: '1px solid rgba(197, 160, 89, 0.2)', padding: '1.2rem', textDecoration: 'none', color: '#EAEAEA', transition: 'all 0.3s ease' }} className="hover:bg-gold/10">
               <MapPin size={18} color="#C5A059" /> <span style={{ fontFamily: 'Cinzel, serif', fontSize: '0.75rem' }}>НАВИГАЦИЯ</span>
             </a>
-            <button onClick={() => document.getElementById('booking')?.scrollIntoView({ behavior: 'smooth' })} style={{ background: '#C5A059', border: 'none', padding: '1rem', fontFamily: 'Cinzel, serif', color: '#0A0A0A', fontWeight: 700 }}>РЕЗЕРВИРАЙ СЕГА</button>
+            <button onClick={() => document.getElementById('booking')?.scrollIntoView({ behavior: 'smooth' })} style={{ background: '#C5A059', border: 'none', padding: '1rem', fontFamily: 'Cinzel, serif', fontSize: '0.75rem', color: '#0A0A0A', letterSpacing: '0.1em', cursor: 'pointer', transition: 'all 0.3s ease' }} className="hover:bg-white">БЪРЗА РЕЗЕРВАЦИЯ</button>
           </div>
         </div>
       </section>
@@ -226,7 +262,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* COLLECTION SECTION (Vertical List as requested) */}
+      {/* COLLECTION SECTION */}
       <section id="collection" style={{ background: '#0A0A0A', padding: 'clamp(5rem, 8vw, 8rem) 0', position: 'relative', overflow: 'hidden' }}>
         <div style={{ position: 'absolute', right: '-2vw', top: '50%', transform: 'translateY(-50%)', fontFamily: 'Cinzel, serif', fontSize: 'clamp(12rem, 25vw, 28rem)', color: 'transparent', WebkitTextStroke: '1px rgba(197,160,89,0.06)', lineHeight: 1, pointerEvents: 'none', userSelect: 'none' }}>{apartments[activeApt].number}</div>
         <div style={{ maxWidth: '1440px', margin: '0 auto', padding: '0 4vw' }}>
@@ -255,21 +291,25 @@ export default function Home() {
         </div>
       </section>
 
-      {/* CONCIERGE SECTION (Horizontal Scroll as requested) */}
+      {/* CONCIERGE SECTION */}
       <section 
         ref={hScrollRef} 
         className="concierge-section"
-        style={{ background: '#0A0A0A', position: 'relative' }}
+        style={{ background: '#0A0A0A', position: 'relative', overflow: 'hidden' }}
       >
         <div ref={hScrollTrackRef} style={{ display: 'flex', height: '100vh', width: 'max-content', alignItems: 'center', padding: '0 10vw' }}>
           <div style={{ width: '40vw', paddingRight: '10vw' }}>
             <span className="section-label">04 — ПРЕДЛОЖЕНИЯ</span>
             <h2 style={{ fontFamily: 'Tenor Sans, serif', fontSize: '4.5rem', color: '#C5A059', lineHeight: 1.1, textTransform: 'uppercase' }}>НАШИТЕ <br /> ПРЕДЛОЖЕНИЯ</h2>
+            <div style={{ marginTop: '2rem', width: '200px', height: '1px', background: 'rgba(197,160,89,0.2)', position: 'relative' }}>
+              <div ref={progressBarRef} style={{ position: 'absolute', inset: 0, background: '#C5A059', transform: 'scaleX(0)', transformOrigin: 'left' }} />
+            </div>
           </div>
           {conciergeServices.map((service) => (
             <div 
               key={service.number} 
               className="concierge-card"
+              onClick={() => setSelectedService(service)}
               style={{ 
                 width: '450px', 
                 height: '65vh', 
@@ -277,7 +317,8 @@ export default function Home() {
                 position: 'relative', 
                 overflow: 'hidden', 
                 background: '#0A0A0A',
-                transition: 'all 0.5s ease'
+                transition: 'all 0.5s ease',
+                cursor: 'pointer'
               }}
             >
               <img 
@@ -295,11 +336,33 @@ export default function Home() {
                 <span style={{ fontFamily: 'Cinzel, serif', color: '#C5A059', marginBottom: '1rem' }}>{service.number}</span>
                 <h3 style={{ fontFamily: 'Tenor Sans, serif', fontSize: '1.8rem', color: '#EAEAEA', marginBottom: '1.2rem' }}>{service.title}</h3>
                 <p style={{ color: 'rgba(234,234,234,0.5)', lineHeight: 1.6 }}>{service.desc}</p>
+                <div style={{ marginTop: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#C5A059', fontSize: '0.7rem', fontFamily: 'Cinzel, serif', opacity: 0, transform: 'translateX(-10px)', transition: 'all 0.3s ease' }} className="learn-more">
+                  ОТКРИЙТЕ ПОВЕЧЕ <ChevronRight size={14} />
+                </div>
               </div>
             </div>
           ))}
         </div>
       </section>
+
+      {/* SERVICE DIALOG */}
+      <Dialog open={!!selectedService} onOpenChange={() => setSelectedService(null)}>
+        <DialogContent className="bg-[#0A0A0A] border-gold/20 max-w-2xl p-0 overflow-hidden">
+          {selectedService && (
+            <div style={{ background: '#0A0A0A' }}>
+              <div style={{ height: '300px', overflow: 'hidden' }}>
+                <img src={selectedService.image} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+              </div>
+              <div style={{ padding: '3rem' }}>
+                <span style={{ fontFamily: 'Cinzel, serif', color: '#C5A059', fontSize: '0.8rem' }}>{selectedService.number} — ПРЕДЛОЖЕНИЕ</span>
+                <h2 style={{ fontFamily: 'Tenor Sans, serif', fontSize: '2.5rem', color: '#EAEAEA', margin: '1rem 0' }}>{selectedService.title}</h2>
+                <p style={{ color: 'rgba(234,234,234,0.7)', lineHeight: 1.8, fontSize: '1.1rem' }}>{selectedService.longDesc}</p>
+                <button onClick={() => setSelectedService(null)} style={{ marginTop: '2.5rem', background: '#C5A059', color: '#0A0A0A', border: 'none', padding: '1rem 2rem', fontFamily: 'Cinzel, serif', cursor: 'pointer' }}>ЗАТВОРИ</button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
 
       {/* BOOKING SECTION */}
       <section id="booking" style={{ position: 'relative', padding: '15vh 4vw', background: '#0A0A0A', overflow: 'hidden' }}>
