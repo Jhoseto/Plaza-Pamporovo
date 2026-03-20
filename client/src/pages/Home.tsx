@@ -9,9 +9,24 @@ import { useEffect, useRef, useState } from 'react';
 import { useLocation } from 'wouter';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { format } from 'date-fns';
+import { Calendar as CalendarIcon, ChevronDown } from 'lucide-react';
 import Navigation from '@/components/Navigation';
 import CustomCursor from '@/components/CustomCursor';
 import { apartments } from '@/lib/apartments';
+import { Calendar } from '@/components/ui/calendar';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -31,7 +46,15 @@ const SPA_IMAGE = 'https://d2xsxph8kpxj0f.cloudfront.net/310519663457771596/CDGB
 export default function Home() {
   const [, navigate] = useLocation();
   const [activeApt, setActiveApt] = useState(0);
-  const [formData, setFormData] = useState({ name: '', email: '', phone: '', message: '', dates: '' });
+  const [formData, setFormData] = useState({ 
+    name: '', 
+    email: '', 
+    phone: '', 
+    message: '', 
+    apartmentId: '',
+    arrivalDate: undefined as Date | undefined,
+    departureDate: undefined as Date | undefined 
+  });
   const [formSent, setFormSent] = useState(false);
   const heroRef = useRef<HTMLDivElement>(null);
   const heroBgRef = useRef<HTMLDivElement>(null);
@@ -136,6 +159,44 @@ export default function Home() {
           }
         );
       });
+
+      // Booking form fields stagger
+      const bookingFields = document.querySelectorAll('.booking-field');
+      if (bookingFields.length > 0) {
+        gsap.fromTo(bookingFields,
+          { y: 30, opacity: 0 },
+          {
+            y: 0,
+            opacity: 1,
+            duration: 1,
+            stagger: 0.1,
+            ease: 'power3.out',
+            scrollTrigger: {
+              trigger: '#booking',
+              start: 'top 60%',
+            },
+          }
+        );
+      }
+
+      // Premium submit button reveal
+      const submitBtn = document.querySelector('.premium-submit-btn');
+      if (submitBtn) {
+        gsap.fromTo(submitBtn,
+          { scale: 0.95, opacity: 0 },
+          {
+            scale: 1,
+            opacity: 1,
+            duration: 1.2,
+            delay: 0.5,
+            ease: 'expo.out',
+            scrollTrigger: {
+              trigger: '#booking',
+              start: 'top 50%',
+            },
+          }
+        );
+      }
 
     });
 
@@ -996,7 +1057,7 @@ export default function Home() {
         id="booking"
         style={{
           background: '#0A0A0A',
-          padding: 'clamp(6rem, 10vw, 10rem) 0',
+          padding: 'clamp(8rem, 12vw, 14rem) 0',
           position: 'relative',
           overflow: 'hidden',
         }}
@@ -1004,226 +1065,195 @@ export default function Home() {
         {/* Ghost text background */}
         <div style={{
           position: 'absolute',
-          left: '-5vw',
-          top: '50%',
-          transform: 'translateY(-50%)',
+          right: '-10vw',
+          top: '20%',
           fontFamily: 'Tenor Sans, serif',
-          fontSize: 'clamp(6rem, 15vw, 16rem)',
+          fontSize: 'clamp(8rem, 20vw, 24rem)',
           color: 'transparent',
-          WebkitTextStroke: '1px rgba(197,160,89,0.04)',
+          WebkitTextStroke: '1px rgba(197,160,89,0.03)',
           lineHeight: 1,
           pointerEvents: 'none',
           userSelect: 'none',
           whiteSpace: 'nowrap',
+          zIndex: 0,
         }}>
-          РЕЗЕРВАЦИЯ
+          PLAZA
         </div>
 
-        <div style={{ maxWidth: '1440px', margin: '0 auto', padding: '0 4vw' }}>
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: '1fr 1fr',
-            gap: '6rem',
-            alignItems: 'center',
+        <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 4vw', position: 'relative', zIndex: 1 }}>
+          <div style={{ textAlign: 'center', marginBottom: '5rem' }}>
+            <div className="scroll-reveal">
+              <span style={{
+                fontFamily: 'Cinzel, serif',
+                fontSize: '0.65rem',
+                letterSpacing: '0.5em',
+                color: '#C5A059',
+                textTransform: 'uppercase',
+                display: 'block',
+                marginBottom: '1.5rem',
+              }}>
+                05 — РЕЗЕРВАЦИЯ
+              </span>
+            </div>
+            <div className="scroll-reveal">
+              <h2 style={{
+                fontFamily: 'Tenor Sans, serif',
+                fontSize: 'clamp(2.5rem, 5vw, 4.5rem)',
+                color: '#EAEAEA',
+                letterSpacing: '0.05em',
+                fontWeight: 400,
+                lineHeight: 1.1,
+                margin: 0,
+              }}>
+                ВАШАТА РЕЗЕРВАЦИЯ <span style={{ color: '#C5A059' }}>ТУК.</span>
+              </h2>
+            </div>
+          </div>
+
+          <div className="scroll-reveal" style={{
+            background: 'rgba(15, 15, 15, 0.4)',
+            backdropFilter: 'blur(20px)',
+            border: '1px solid rgba(197, 160, 89, 0.1)',
+            padding: 'clamp(2rem, 5vw, 4rem)',
+            borderRadius: '2px',
           }}>
-            {/* Left: Text */}
-            <div>
-              <div className="scroll-reveal">
-                <span style={{
+            {formSent ? (
+              <div style={{
+                textAlign: 'center',
+                padding: '4rem 2rem',
+              }}>
+                <div style={{
                   fontFamily: 'Cinzel, serif',
-                  fontSize: '0.6rem',
-                  letterSpacing: '0.4em',
+                  fontSize: '3rem',
                   color: '#C5A059',
-                  textTransform: 'uppercase',
-                  display: 'block',
-                  marginBottom: '2rem',
+                  marginBottom: '1.5rem',
                 }}>
-                  05 — РЕЗЕРВАЦИЯ
-                </span>
-              </div>
-
-              <div className="scroll-reveal">
-                <h2 style={{
+                  ✓
+                </div>
+                <h3 style={{
                   fontFamily: 'Tenor Sans, serif',
-                  fontSize: 'clamp(2rem, 4vw, 3.5rem)',
+                  fontSize: '2rem',
                   color: '#EAEAEA',
-                  letterSpacing: '0.03em',
+                  letterSpacing: '0.1em',
+                  marginBottom: '1rem',
                   fontWeight: 400,
-                  lineHeight: 1.2,
-                  marginBottom: '2rem',
                 }}>
-                  ВАШЕТО БЯГСТВО<br />
-                  <span style={{ color: '#C5A059' }}>ЗАПОЧВА ТУК.</span>
-                </h2>
-              </div>
-
-              <div className="scroll-reveal">
+                  БЛАГОДАРИМ ВИ
+                </h3>
                 <p style={{
                   fontFamily: 'Satoshi, sans-serif',
-                  fontSize: '0.95rem',
+                  fontSize: '1rem',
                   color: 'rgba(234,234,234,0.5)',
-                  lineHeight: 1.8,
-                  fontWeight: 300,
-                  maxWidth: '400px',
-                  marginBottom: '3rem',
+                  letterSpacing: '0.05em',
                 }}>
-                  Свържете се с нашия консиерж екип за персонализирана оферта. Отговаряме в рамките на 2 часа.
+                  Вашата заявка беше изпратена успешно. Нашият консиерж ще се свърже с Вас скоро.
                 </p>
               </div>
-
-              <div className="scroll-reveal">
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-                  {[
-                    { icon: '→', text: 'Персонализирана оферта в 2 часа' },
-                    { icon: '→', text: 'Безплатна анулация до 48 часа' },
-                    { icon: '→', text: 'Директна комуникация с консиерж' },
-                  ].map(item => (
-                    <div key={item.text} style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                      <span style={{ color: '#C5A059', fontFamily: 'Cinzel, serif' }}>{item.icon}</span>
-                      <span style={{
-                        fontFamily: 'Satoshi, sans-serif',
-                        fontSize: '0.8rem',
-                        color: 'rgba(234,234,234,0.45)',
-                        letterSpacing: '0.08em',
-                      }}>
-                        {item.text}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            {/* Right: Form */}
-            <div className="scroll-reveal">
-              {formSent ? (
-                <div style={{
-                  textAlign: 'center',
-                  padding: '4rem 2rem',
-                  border: '1px solid rgba(197,160,89,0.2)',
-                }}>
-                  <div style={{
-                    fontFamily: 'Cinzel, serif',
-                    fontSize: '2rem',
-                    color: '#C5A059',
-                    marginBottom: '1rem',
-                    letterSpacing: '0.1em',
-                  }}>
-                    ✓
-                  </div>
-                  <h3 style={{
-                    fontFamily: 'Tenor Sans, serif',
-                    fontSize: '1.5rem',
-                    color: '#EAEAEA',
-                    letterSpacing: '0.1em',
-                    marginBottom: '1rem',
-                    fontWeight: 400,
-                  }}>
-                    ПОЛУЧИХМЕ ЗАЯВКАТА ВИ
-                  </h3>
-                  <p style={{
-                    fontFamily: 'Satoshi, sans-serif',
-                    fontSize: '0.85rem',
-                    color: 'rgba(234,234,234,0.4)',
-                    letterSpacing: '0.08em',
-                  }}>
-                    Ще се свържем с вас в рамките на 2 часа.
-                  </p>
-                </div>
-              ) : (
-                <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem' }}>
-                    <div>
-                      <input
-                        type="text"
-                        placeholder="ИМЕ И ФАМИЛИЯ"
-                        className="lux-input"
-                        value={formData.name}
-                        onChange={e => setFormData(p => ({ ...p, name: e.target.value }))}
-                        required
-                      />
-                    </div>
-                    <div>
-                      <input
-                        type="email"
-                        placeholder="ИМЕЙЛ"
-                        className="lux-input"
-                        value={formData.email}
-                        onChange={e => setFormData(p => ({ ...p, email: e.target.value }))}
-                        required
-                      />
-                    </div>
-                  </div>
-
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem' }}>
-                    <div>
-                      <input
-                        type="tel"
-                        placeholder="ТЕЛЕФОН"
-                        className="lux-input"
-                        value={formData.phone}
-                        onChange={e => setFormData(p => ({ ...p, phone: e.target.value }))}
-                      />
-                    </div>
-                    <div>
-                      <input
-                        type="text"
-                        placeholder="ЖЕЛАНИ ДАТИ"
-                        className="lux-input"
-                        value={formData.dates}
-                        onChange={e => setFormData(p => ({ ...p, dates: e.target.value }))}
-                      />
-                    </div>
-                  </div>
-
-                  <div>
-                    <textarea
-                      placeholder="ВАШЕТО СЪОБЩЕНИЕ"
-                      className="lux-input"
-                      rows={4}
-                      value={formData.message}
-                      onChange={e => setFormData(p => ({ ...p, message: e.target.value }))}
-                      style={{
-                        resize: 'none',
-                        fontFamily: 'Satoshi, sans-serif',
-                        background: 'transparent',
-                        border: 'none',
-                        borderBottom: '1px solid rgba(234, 234, 234, 0.2)',
-                        color: '#EAEAEA',
-                        fontWeight: 300,
-                        padding: '1rem 0',
-                        width: '100%',
-                        outline: 'none',
-                        transition: 'border-color 0.3s ease',
-                        fontSize: '0.95rem',
-                        letterSpacing: '0.05em',
-                      }}
+            ) : (
+              <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '3.5rem' }}>
+                {/* Row 1: Basic Info */}
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '3rem' }}>
+                  <div className="booking-field">
+                    <label style={{ fontFamily: 'Cinzel, serif', fontSize: '0.55rem', letterSpacing: '0.3em', color: 'rgba(197,160,89,0.6)', display: 'block', marginBottom: '0.8rem' }}>ИМЕ И ФАМИЛИЯ</label>
+                    <input
+                      type="text"
+                      className="lux-input-v2"
+                      value={formData.name}
+                      onChange={e => setFormData(p => ({ ...p, name: e.target.value }))}
+                      required
                     />
                   </div>
-
-                  <div>
-                    <button
-                      type="submit"
-                      className="magnetic-btn"
-                      style={{
-                        width: '100%',
-                        border: '1px solid rgba(197,160,89,0.5)',
-                        padding: '1.2rem',
-                        fontFamily: 'Cinzel, serif',
-                        fontSize: '0.7rem',
-                        letterSpacing: '0.3em',
-                        color: '#EAEAEA',
-                        textTransform: 'uppercase',
-                        background: 'transparent',
-                      }}
-                      data-cursor="hover"
-                    >
-                      <span>ИЗПРАТИ ЗАЯВКА</span>
-                    </button>
+                  <div className="booking-field">
+                    <label style={{ fontFamily: 'Cinzel, serif', fontSize: '0.55rem', letterSpacing: '0.3em', color: 'rgba(197,160,89,0.6)', display: 'block', marginBottom: '0.8rem' }}>ИМЕЙЛ АДРЕС</label>
+                    <input
+                      type="email"
+                      className="lux-input-v2"
+                      value={formData.email}
+                      onChange={e => setFormData(p => ({ ...p, email: e.target.value }))}
+                      required
+                    />
                   </div>
-                </form>
-              )}
-            </div>
+                </div>
+
+                {/* Row 2: Dates and Apartment */}
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '3rem' }}>
+                  <div className="booking-field">
+                    <label style={{ fontFamily: 'Cinzel, serif', fontSize: '0.55rem', letterSpacing: '0.3em', color: 'rgba(197,160,89,0.6)', display: 'block', marginBottom: '0.8rem' }}>ПЕРИОД НА ПРЕСТОЙ</label>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <button type="button" className="lux-date-trigger">
+                            <CalendarIcon size={14} style={{ color: '#C5A059' }} />
+                            <span>{formData.arrivalDate ? format(formData.arrivalDate, 'dd.MM.yyyy') : 'ПРИСТИГАНЕ'}</span>
+                          </button>
+                        </PopoverTrigger>
+                        <PopoverContent className="bg-[#111] border-rgba(197,160,89,0.2) p-0" align="start">
+                          <Calendar
+                            mode="single"
+                            selected={formData.arrivalDate}
+                            onSelect={date => setFormData(p => ({ ...p, arrivalDate: date }))}
+                            initialFocus
+                          />
+                        </PopoverContent>
+                      </Popover>
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <button type="button" className="lux-date-trigger">
+                            <CalendarIcon size={14} style={{ color: '#C5A059' }} />
+                            <span>{formData.departureDate ? format(formData.departureDate, 'dd.MM.yyyy') : 'ЗАМИНАВАНЕ'}</span>
+                          </button>
+                        </PopoverTrigger>
+                        <PopoverContent className="bg-[#111] border-rgba(197,160,89,0.2) p-0" align="start">
+                          <Calendar
+                            mode="single"
+                            selected={formData.departureDate}
+                            onSelect={date => setFormData(p => ({ ...p, departureDate: date }))}
+                            initialFocus
+                          />
+                        </PopoverContent>
+                      </Popover>
+                    </div>
+                  </div>
+                  <div className="booking-field">
+                    <label style={{ fontFamily: 'Cinzel, serif', fontSize: '0.55rem', letterSpacing: '0.3em', color: 'rgba(197,160,89,0.6)', display: 'block', marginBottom: '0.8rem' }}>ИЗБОР НА АПАРТАМЕНТ</label>
+                    <Select onValueChange={val => setFormData(p => ({ ...p, apartmentId: val }))}>
+                      <SelectTrigger className="lux-select-trigger">
+                        <SelectValue placeholder="ИЗБЕРЕТЕ АПАРТАМЕНТ" />
+                      </SelectTrigger>
+                      <SelectContent className="bg-[#111] border-rgba(197,160,89,0.2)">
+                        {apartments.map(apt => (
+                          <SelectItem key={apt.id} value={apt.id.toString()} className="text-[#EAEAEA] hover:bg-[#C5A059]/10 focus:bg-[#C5A059]/20">
+                            {apt.number} — {apt.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+
+                {/* Row 3: Message */}
+                <div className="booking-field">
+                  <label style={{ fontFamily: 'Cinzel, serif', fontSize: '0.55rem', letterSpacing: '0.3em', color: 'rgba(197,160,89,0.6)', display: 'block', marginBottom: '0.8rem' }}>ДОПЪЛНИТЕЛНИ ЖЕЛАНИЯ</label>
+                  <textarea
+                    className="lux-input-v2"
+                    rows={2}
+                    value={formData.message}
+                    onChange={e => setFormData(p => ({ ...p, message: e.target.value }))}
+                    style={{ resize: 'none' }}
+                  />
+                </div>
+
+                <div style={{ marginTop: '1rem' }}>
+                  <button
+                    type="submit"
+                    className="premium-submit-btn"
+                    data-cursor="hover"
+                  >
+                    <span>ИЗПРАТИ ЗАПИТВАНЕ ЗА РЕЗЕРВАЦИЯ</span>
+                  </button>
+                </div>
+              </form>
+            )}
           </div>
         </div>
       </section>

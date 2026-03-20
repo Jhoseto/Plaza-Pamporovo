@@ -298,3 +298,126 @@
     background-size: 200px 200px;
   }
 }
+
+/* Premium Booking Form Styles */
+.lux-input-v2 {
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid rgba(234, 234, 234, 0.1);
+  color: #EAEAEA;
+  font-family: 'Satoshi', sans-serif;
+  font-weight: 300;
+  padding: 1.2rem 0;
+  width: 100%;
+  outline: none;
+  transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+  font-size: 1.1rem;
+  letter-spacing: 0.05em;
+}
+
+.lux-input-v2:focus {
+  border-bottom-color: var(--gold);
+  padding-left: 0.5rem;
+  background: rgba(197, 160, 89, 0.02);
+}
+
+.lux-date-trigger {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid rgba(234, 234, 234, 0.1);
+  color: #EAEAEA;
+  font-family: 'Satoshi', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 300;
+  padding: 1.2rem 0;
+  width: 100%;
+  text-align: left;
+  transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+  letter-spacing: 0.1em;
+}
+
+.lux-date-trigger:hover {
+  border-bottom-color: var(--gold);
+  background: rgba(197, 160, 89, 0.02);
+}
+
+.lux-select-trigger {
+  background: transparent !important;
+  border: none !important;
+  border-bottom: 1px solid rgba(234, 234, 234, 0.1) !important;
+  border-radius: 0 !important;
+  color: #EAEAEA !important;
+  font-family: 'Satoshi', sans-serif !important;
+  font-size: 1rem !important;
+  font-weight: 300 !important;
+  padding: 1.2rem 0 !important;
+  height: auto !important;
+  width: 100% !important;
+  transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1) !important;
+  box-shadow: none !important;
+}
+
+.lux-select-trigger:hover, .lux-select-trigger:focus {
+  border-bottom-color: var(--gold) !important;
+  background: rgba(197, 160, 89, 0.02) !important;
+}
+
+.premium-submit-btn {
+  position: relative;
+  width: 100%;
+  background: transparent;
+  border: 1px solid rgba(197, 160, 89, 0.3);
+  padding: 1.8rem;
+  font-family: 'Cinzel', serif;
+  font-size: 0.8rem;
+  letter-spacing: 0.4em;
+  color: #EAEAEA;
+  text-transform: uppercase;
+  overflow: hidden;
+  transition: all 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.premium-submit-btn::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--gold);
+  transform: scaleY(0);
+  transform-origin: bottom;
+  transition: transform 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+  z-index: 0;
+}
+
+.premium-submit-btn:hover {
+  border-color: var(--gold);
+  color: #0A0A0A;
+}
+
+.premium-submit-btn:hover::before {
+  transform: scaleY(1);
+}
+
+.premium-submit-btn span {
+  position: relative;
+  z-index: 1;
+}
+
+/* Custom Calendar Overrides for Luxury Theme */
+.rdp {
+  --rdp-accent-color: var(--gold) !important;
+  --rdp-background-color: rgba(197, 160, 89, 0.2) !important;
+  margin: 0 !important;
+}
+
+.rdp-day_selected {
+  background-color: var(--gold) !important;
+  color: #0A0A0A !important;
+}
+
+.rdp-button:hover:not([disabled]):not(.rdp-day_selected) {
+  background-color: rgba(197, 160, 89, 0.1) !important;
+  color: var(--gold) !important;
+}
