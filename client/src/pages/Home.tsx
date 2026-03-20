@@ -38,7 +38,9 @@ import {
 gsap.registerPlugin(ScrollTrigger);
 
 const HERO_IMAGE = 'https://d2xsxph8kpxj0f.cloudfront.net/310519663457771596/CDGBXHppTB3VFJSZAKqvbh/hero-pamporovo-hKcPiG4L4E98MCUqhhYFF2.webp';
-const HERO_VIDEO_MP4 = 'https://res.cloudinary.com/dlzujc8v5/video/upload/v1773994846/Untitled_hvh0hg.mp4';
+const HERO_VIDEO_DAY = 'https://res.cloudinary.com/dlzujc8v5/video/upload/v1773994846/Untitled_hvh0hg.mp4';
+const HERO_VIDEO_NIGHT = 'https://res.cloudinary.com/dlzujc8v5/video/upload/v1737402654/fireplace_night_v_qj6z3y.mp4'; // Placeholder for night fireplace video
+const AMBIENT_SOUND = 'https://res.cloudinary.com/dlzujc8v5/video/upload/v1737402800/mountain_ambient_sound_f7y2x8.mp3'; // Placeholder for mountain/fireplace sound
 const FIREPLACE_IMAGE = 'https://d2xsxph8kpxj0f.cloudfront.net/310519663457771596/CDGBXHppTB3VFJSZAKqvbh/interior-fireplace-DTitKvcxt75ynojrJjeN7p.webp';
 const BEDROOM_IMAGE = 'https://d2xsxph8kpxj0f.cloudfront.net/310519663457771596/CDGBXHppTB3VFJSZAKqvbh/bedroom-mountain-HWogqgxqEQraABWJXnxQRw.webp';
 const CHEF_IMAGE = 'https://d2xsxph8kpxj0f.cloudfront.net/310519663457771596/CDGBXHppTB3VFJSZAKqvbh/concierge-chef-LGMZQLWm8HsTsMxr9jye96.webp';
@@ -61,6 +63,53 @@ export default function Home() {
   const [nights, setNights] = useState<number | null>(null);
   const [weather, setWeather] = useState({ temp: -6, snow: 85, wind: 4 });
   const [selectedService, setSelectedService] = useState<any>(null);
+  const [isNight, setIsNight] = useState(false);
+  const [isChatOpen, setIsChatOpen] = useState(false);
+  const [chatMessages, setChatMessages] = useState([{ role: 'bot', text: 'Добре дошли в Plaza Pamporovo! Аз съм Вашият личен консиерж. Как мога да Ви помогна днес?' }]);
+  const [userInput, setUserInput] = useState('');
+  const [isAudioPlaying, setIsAudioPlaying] = useState(false);
+  const audioRef = useRef<HTMLAudioElement>(null);
+
+  // Check if it's night time in Pamporovo (between 6 PM and 7 AM)
+  useEffect(() => {
+    const checkTime = () => {
+      const hour = new Date().getHours();
+      setIsNight(hour >= 18 || hour < 7);
+    };
+    checkTime();
+    const interval = setInterval(checkTime, 60000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const toggleAudio = () => {
+    if (audioRef.current) {
+      if (isAudioPlaying) {
+        audioRef.current.pause();
+      } else {
+        audioRef.current.play();
+      }
+      setIsAudioPlaying(!isAudioPlaying);
+    }
+  };
+
+  const handleSendMessage = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!userInput.trim()) return;
+
+    const newMessages = [...chatMessages, { role: 'user', text: userInput }];
+    setChatMessages(newMessages);
+    setUserInput('');
+
+    // Simple bot logic for demo (could be replaced with real LLM)
+    setTimeout(() => {
+      let botResponse = "Благодарим за въпроса! Наш представител ще се свърже с Вас скоро.";
+      if (userInput.toLowerCase().includes('цена')) botResponse = "Цените варират според апартамента и сезона. Можете да проверите общата сума директно във формата за резервация по-долу.";
+      if (userInput.toLowerCase().includes('спа')) botResponse = "Нашият СПА център е отворен всеки ден от 09:00 до 21:00 и предлага басейн, сауна и масажи.";
+      if (userInput.toLowerCase().includes('ски')) botResponse = "Намираме се само на крачки от пистите и разполагаме с модерен ски гардероб.";
+      
+      setChatMessages([...newMessages, { role: 'bot', text: botResponse }]);
+    }, 1000);
+  };
 
   const heroRef = useRef<HTMLDivElement>(null);
   const heroBgRef = useRef<HTMLDivElement>(null);
@@ -205,6 +254,11 @@ export default function Home() {
     { number: '08', title: 'РЕЛАКС И УЕЛНЕС', desc: 'Външно джакузи с гледка към гората, йога сесии на открито и възстановяващи процедури.', longDesc: 'Потопете се в хармонията на природата. Нашите йога сесии на открито и външното джакузи с панорамна гледка ще Ви помогнат да преоткриете вътрешния си баланс.', image: FIREPLACE_IMAGE },
   ];
 
+  const floorPlans: Record<number, string> = {
+    1: 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663458413005/floorplan_1.png', // Placeholder
+    2: 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663458413005/floorplan_2.png',
+  };
+
   return (
     <div style={{ background: '#0A0A0A', minHeight: '100vh', overflowX: 'hidden' }}>
       <div className="noise-overlay" />
@@ -214,9 +268,21 @@ export default function Home() {
       {/* HERO SECTION */}
       <section ref={heroRef} style={{ position: 'relative', height: '100vh', overflow: 'hidden', display: 'flex', alignItems: 'flex-end' }}>
         <div ref={heroBgRef} style={{ position: 'absolute', inset: '-10%', backgroundImage: `url(${HERO_IMAGE})`, backgroundSize: 'cover', backgroundPosition: 'center' }}>
-          <video autoPlay muted loop playsInline style={{ width: '100%', height: '100%', objectFit: 'cover' }}>
-            <source src={HERO_VIDEO_MP4} type="video/mp4" />
+          <video key={isNight ? 'night' : 'day'} autoPlay muted loop playsInline style={{ width: '100%', height: '100%', objectFit: 'cover', transition: 'opacity 2s ease' }}>
+            <source src={isNight ? HERO_VIDEO_NIGHT : HERO_VIDEO_DAY} type="video/mp4" />
           </video>
+        </div>
+        
+        {/* Audio Control */}
+        <div style={{ position: 'absolute', top: '2rem', right: '4vw', zIndex: 100, display: 'flex', alignItems: 'center', gap: '1rem' }}>
+          <audio ref={audioRef} loop src={AMBIENT_SOUND} />
+          <button 
+            onClick={toggleAudio}
+            style={{ background: 'rgba(10, 10, 10, 0.4)', border: '1px solid rgba(197, 160, 89, 0.3)', padding: '0.8rem', borderRadius: '50%', color: '#C5A059', cursor: 'pointer', backdropFilter: 'blur(10px)', transition: 'all 0.3s ease' }}
+            className="hover:scale-110"
+          >
+            {isAudioPlaying ? <Wind size={18} /> : <Wind size={18} style={{ opacity: 0.4 }} />}
+          </button>
         </div>
         <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(10,10,10,0.98) 0%, rgba(10,10,10,0.4) 100%)' }} />
 
@@ -283,8 +349,17 @@ export default function Home() {
                 </div>
               ))}
             </div>
-            <div style={{ position: 'sticky', top: '15vh', height: '70vh', overflow: 'hidden' }}>
+            <div style={{ position: 'sticky', top: '15vh', height: '70vh', overflow: 'hidden', background: '#111' }}>
               <img key={activeApt} src={apartments[activeApt].images[0]} style={{ width: '100%', height: '100%', objectFit: 'cover', animation: 'fadeIn 0.8s ease' }} />
+              
+              {/* Floor Plan Overlay */}
+              <div style={{ position: 'absolute', top: '2rem', left: '2rem', background: 'rgba(10,10,10,0.6)', backdropFilter: 'blur(10px)', padding: '1rem', border: '1px solid rgba(197, 160, 89, 0.2)', opacity: 0.8 }}>
+                <div style={{ fontFamily: 'Cinzel, serif', fontSize: '0.55rem', color: '#C5A059', marginBottom: '0.5rem' }}>АРХИТЕКТУРЕН ПЛАН</div>
+                <div style={{ width: '120px', height: '80px', background: 'rgba(197, 160, 89, 0.1)', border: '1px dashed rgba(197, 160, 89, 0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                   <span style={{ fontSize: '0.6rem', color: 'rgba(234,234,234,0.4)' }}>2D PLAN</span>
+                </div>
+              </div>
+
               <button onClick={() => navigate(`/apartment/${apartments[activeApt].id}`)} className="magnetic-btn" style={{ position: 'absolute', bottom: '2rem', right: '2rem', background: '#C5A059', color: '#0A0A0A', border: 'none', padding: '1rem 2rem', fontFamily: 'Cinzel, serif', fontSize: '0.7rem', letterSpacing: '0.2em' }}>ОТКРИЙТЕ ПОВЕЧЕ</button>
             </div>
           </div>
@@ -420,6 +495,46 @@ export default function Home() {
         <div style={{ fontFamily: 'Tenor Sans, serif', fontSize: '1.8rem', color: '#EAEAEA', marginBottom: '1.5rem' }}>PLAZA PAMPOROVO</div>
         <div style={{ color: 'rgba(234,234,234,0.3)', fontSize: '0.7rem' }}>© 2024 ВСИЧКИ ПРАВА ЗАПАЗЕНИ. ДИЗАЙН И КОНЦЕПЦИЯ ОТ PLAZA GROUP.</div>
       </footer>
+
+      {/* AI CONCIERGE CHAT */}
+      <div style={{ position: 'fixed', bottom: '2rem', right: '2rem', zIndex: 1000 }}>
+        {!isChatOpen ? (
+          <button 
+            onClick={() => setIsChatOpen(true)}
+            style={{ background: '#C5A059', color: '#0A0A0A', width: '60px', height: '60px', borderRadius: '50%', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 10px 30px rgba(0,0,0,0.5)', cursor: 'pointer', transition: 'all 0.3s ease' }}
+            className="hover:scale-110"
+          >
+            <Wind size={24} />
+          </button>
+        ) : (
+          <div style={{ width: '350px', height: '500px', background: '#111111', border: '1px solid rgba(197, 160, 89, 0.2)', borderRadius: '1rem', display: 'flex', flexDirection: 'column', overflow: 'hidden', boxShadow: '0 20px 50px rgba(0,0,0,0.8)', animation: 'fadeInUp 0.4s ease' }}>
+            <div style={{ background: '#1A1A1A', padding: '1.2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(197, 160, 89, 0.1)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
+                <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: '#C5A059' }} />
+                <span style={{ fontFamily: 'Cinzel, serif', fontSize: '0.7rem', color: '#C5A059', letterSpacing: '0.1em' }}>PLAZA CONCIERGE</span>
+              </div>
+              <button onClick={() => setIsChatOpen(false)} style={{ background: 'none', border: 'none', color: 'rgba(234,234,234,0.4)', cursor: 'pointer' }}><X size={18} /></button>
+            </div>
+            <div style={{ flex: 1, padding: '1.5rem', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              {chatMessages.map((msg, i) => (
+                <div key={i} style={{ alignSelf: msg.role === 'user' ? 'flex-end' : 'flex-start', maxWidth: '85%', padding: '0.8rem 1rem', borderRadius: '0.8rem', background: msg.role === 'user' ? '#C5A059' : '#1A1A1A', color: msg.role === 'user' ? '#0A0A0A' : '#EAEAEA', fontSize: '0.85rem', lineHeight: 1.5, border: msg.role === 'user' ? 'none' : '1px solid rgba(197, 160, 89, 0.1)' }}>
+                  {msg.text}
+                </div>
+              ))}
+            </div>
+            <form onSubmit={handleSendMessage} style={{ padding: '1rem', borderTop: '1px solid rgba(197, 160, 89, 0.1)', display: 'flex', gap: '0.5rem' }}>
+              <input 
+                type="text" 
+                value={userInput}
+                onChange={(e) => setUserInput(e.target.value)}
+                placeholder="Попитайте ме нещо..." 
+                style={{ flex: 1, background: '#1A1A1A', border: '1px solid rgba(234,234,234,0.1)', borderRadius: '0.5rem', padding: '0.6rem 1rem', color: '#EAEAEA', fontSize: '0.85rem', outline: 'none' }}
+              />
+              <button type="submit" style={{ background: '#C5A059', border: 'none', borderRadius: '0.5rem', padding: '0.6rem', color: '#0A0A0A', cursor: 'pointer' }}><ChevronRight size={18} /></button>
+            </form>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
