@@ -31,9 +31,7 @@ import {
 gsap.registerPlugin(ScrollTrigger);
 
 const HERO_IMAGE = 'https://d2xsxph8kpxj0f.cloudfront.net/310519663457771596/CDGBXHppTB3VFJSZAKqvbh/hero-pamporovo-hKcPiG4L4E98MCUqhhYFF2.webp';
-const MUX_VIDEO_ID = 'rR8P8mSaKDzz02TsftugTUdI00cQPJX00oy';
-const HERO_VIDEO_MP4 = `https://stream.mux.com/${MUX_VIDEO_ID}.mp4`;
-const HERO_VIDEO_HLS = `https://stream.mux.com/${MUX_VIDEO_ID}.m3u8`;
+const HERO_VIDEO_MP4 = 'https://res.cloudinary.com/dlzujc8v5/video/upload/v1773994846/Untitled_hvh0hg.mp4';
 const FIREPLACE_IMAGE = 'https://d2xsxph8kpxj0f.cloudfront.net/310519663457771596/CDGBXHppTB3VFJSZAKqvbh/interior-fireplace-DTitKvcxt75ynojrJjeN7p.webp';
 const BEDROOM_IMAGE = 'https://d2xsxph8kpxj0f.cloudfront.net/310519663457771596/CDGBXHppTB3VFJSZAKqvbh/bedroom-mountain-HWogqgxqEQraABWJXnxQRw.webp';
 const CHEF_IMAGE = 'https://d2xsxph8kpxj0f.cloudfront.net/310519663457771596/CDGBXHppTB3VFJSZAKqvbh/concierge-chef-LGMZQLWm8HsTsMxr9jye96.webp';
