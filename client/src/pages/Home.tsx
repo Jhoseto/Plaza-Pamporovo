@@ -229,7 +229,7 @@ export default function Home() {
         <div style={{ position: 'absolute', right: '-2vw', top: '50%', transform: 'translateY(-50%)', fontFamily: 'Cinzel, serif', fontSize: 'clamp(12rem, 25vw, 28rem)', color: 'transparent', WebkitTextStroke: '1px rgba(197,160,89,0.06)', lineHeight: 1, pointerEvents: 'none', userSelect: 'none' }}>{apartments[activeApt].number}</div>
         <div style={{ maxWidth: '1440px', margin: '0 auto', padding: '0 4vw' }}>
           <div className="scroll-reveal" style={{ marginBottom: '4rem' }}>
-            <span className="section-label">03 — КОЛЕКЦИЯТА</span>
+            <span className="section-label">03 — КОЛЕКЦИЯ АПАРТАМЕНТИ</span>
             <h2 style={{ fontFamily: 'Tenor Sans, serif', fontSize: 'clamp(2rem, 4vw, 3.5rem)', color: '#EAEAEA', letterSpacing: '0.05em', fontWeight: 400, margin: 0 }}>Седем пространства.<br /><span style={{ color: 'rgba(234,234,234,0.35)' }}>Един стандарт.</span></h2>
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '4rem', alignItems: 'start' }}>
