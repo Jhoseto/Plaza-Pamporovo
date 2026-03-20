@@ -114,30 +114,18 @@ export default function Home() {
         const track = hScrollTrackRef.current;
         const totalWidth = track.scrollWidth - hScrollRef.current.offsetWidth;
         
-        const st = ScrollTrigger.create({
-          trigger: hScrollRef.current,
-          start: 'top top',
-          end: () => `+=${totalWidth + 400}`,
-          pin: true,
-          scrub: 1,
-          anticipatePin: 1,
-          onUpdate: (self) => {
-            if (isHoveringConcierge) {
-              gsap.to(track, { x: -totalWidth * self.progress, overwrite: 'auto', ease: 'none' });
-            }
-          }
+        gsap.to(track, {
+          x: -totalWidth,
+          ease: 'none',
+          scrollTrigger: {
+            trigger: hScrollRef.current,
+            start: 'top top',
+            end: () => `+=${totalWidth + 600}`,
+            pin: true,
+            scrub: 1,
+            anticipatePin: 1,
+          },
         });
-
-        // Effect to handle scroll blocking/allowing based on hover
-        const handleWheel = (e: WheelEvent) => {
-          if (isHoveringConcierge) {
-            // If hovering, we let the ScrollTrigger do its thing
-            return;
-          } else {
-            // If not hovering, we want to skip this pinned section
-            // This is tricky with pinning, so we use the hover state to disable/enable the trigger
-          }
-        };
       }
 
       // Gold line animation
@@ -270,8 +258,7 @@ export default function Home() {
       {/* CONCIERGE SECTION (Horizontal Scroll as requested) */}
       <section 
         ref={hScrollRef} 
-        onMouseEnter={() => setIsHoveringConcierge(true)}
-        onMouseLeave={() => setIsHoveringConcierge(false)}
+        className="concierge-section"
         style={{ background: '#0A0A0A', position: 'relative' }}
       >
         <div ref={hScrollTrackRef} style={{ display: 'flex', height: '100vh', width: 'max-content', alignItems: 'center', padding: '0 10vw' }}>
